@@ -1,36 +1,22 @@
 from rest_framework import serializers
-from .models import MyUser
+from .models import CustomUser
 
 
-class UserCreateSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+    confirm_password = serializers.CharField(write_only=True)
+
     class Meta:
-        model = MyUser
-        fields = ('id', 'username', 'address', 'email', 'phone_number', 'password')
+        model = CustomUser
+        fields = ('phone_number', 'email', 'name', 'password', 'confirm_password', 'address')
 
     def create(self, validated_data):
-        user = MyUser(**validated_data)
-        user.set_password(validated_data['password'])
-        user.save()
+        password = validated_data.pop('password')
+        confirm_password = validated_data.pop('confirm_password')
+
+        if password != confirm_password:
+            raise serializers.ValidationError("Passwords do not match")
+
+        user = CustomUser.objects.create_user(password=password, **validated_data)
         return user
 
-    def update(self, instance, validated_data):
-        for field, value in validated_data.items():
-            if field == 'password':
-                instance.set_password(value)
-            else:
-                setattr(instance, field, value)
-        instance.save()
-        return instance
-
-
-class UserListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MyUser
-        fields = ('id', 'username', 'address', 'email', 'phone_number')
-
-
-class ProfileSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = MyUser
-        fields = ('id', 'username', 'address', 'email', 'phone_number')
