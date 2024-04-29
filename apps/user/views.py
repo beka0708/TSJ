@@ -3,11 +3,16 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
-# from django.contrib.auth import authenticate
+from django.contrib.auth import get_user_model, authenticate
 from .backends import PhoneNumberBackend
+from .permissions import AllowAny
+
+CustomUser = get_user_model()
 
 
 class UserRegistrationView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
@@ -17,6 +22,8 @@ class UserRegistrationView(APIView):
 
 
 class PhoneNumberAuthenticationView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
         phone_number = request.data.get('phone_number', None)
         password = request.data.get('password', None)

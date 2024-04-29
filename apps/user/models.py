@@ -1,35 +1,40 @@
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from apps.user.managers import CustomUserManager
+from phonenumber_field.modelfields import PhoneNumberField
 
 
-class CustomUserManager(BaseUserManager):
-    def create_user(self, phone_number, email, password=None, **extra_fields):
-        if not phone_number:
-            raise ValueError('Поле «Номер телефона» должно быть заполнено.')
-        if not email:
-            raise ValueError('Поле Электронная почта должно быть установлено')
+class CustomUser(AbstractBaseUser, PermissionsMixin):
+    OWNER = 'OWNER'
+    TENANT = 'TENANT'
+    MANAGER = 'MANAGER'
+    ROLE_CHOICES = [
+        (OWNER, 'Владелец'),
+        (TENANT, 'Арендатор'),
+        (MANAGER, 'Менеджер'),
+    ]
 
-        user = self.model(
-            phone_number=phone_number,
-            email=self.normalize_email(email),
-            **extra_fields
-        )
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-
-class CustomUser(AbstractBaseUser):
     DoesNotExist = None
-    phone_number = models.CharField(max_length=20, unique=True)
+    phone_number = PhoneNumberField('Номер телефона', region='KG', unique=True,
+                                    help_text='Пример: +996700777777', null=True)
     email = models.EmailField(unique=True)
-    name = models.CharField(max_length=100)
-    address = models.CharField(max_length=255)
+    name = models.CharField(max_length=100, verbose_name="Имя",)
+    address = models.CharField(max_length=255, verbose_name="Адрес",)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, null=True,
+                            verbose_name="Роль")
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
 
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'phone_number'
     REQUIRED_FIELDS = ['email']
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Аккаунт"
+        verbose_name_plural = "Аккаунты"
