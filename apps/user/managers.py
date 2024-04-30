@@ -8,6 +8,9 @@ class CustomUserManager(BaseUserManager):
         if not email:
             raise ValueError('Поле Электронная почта должно быть установлено')
 
+        extra_fields.setdefault('is_approved', False)
+        extra_fields.setdefault('is_active', False)
+
         user = self.model(
             phone_number=phone_number,
             email=self.normalize_email(email),
@@ -21,17 +24,18 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_active', True)
+        extra_fields.setdefault('is_approved', True)
 
         if extra_fields.get('is_staff') is not True:
             raise ValueError('Superuser must have is_staff=True.')
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
 
-        is_superuser = extra_fields.pop('is_superuser', False)
+        # is_superuser = extra_fields.pop('is_superuser', False)
 
         # Создание пользователя с помощью create_user и установление is_superuser вручную
         user = self.create_user(phone_number, email, password, **extra_fields)
-        user.is_superuser = is_superuser
+        user.is_superuser = True
         user.save(using=self._db)
         return user
 
