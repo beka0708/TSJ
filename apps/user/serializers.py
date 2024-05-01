@@ -7,6 +7,8 @@ CustomUser = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
+    is_active = serializers.BooleanField(read_only=True)
+    is_approved = serializers.CharField(read_only=True)
 
     class Meta:
         model = CustomUser
