@@ -49,6 +49,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def save(self, *args, **kwargs):
         if self.is_approved == CustomUser.APPROVED:
             self.is_active = True
+        elif self.is_approved == CustomUser.NOT_APPROVED:
+            self.is_active = False
         else:
             self.is_active = False
         super().save(*args, **kwargs)

@@ -15,8 +15,8 @@ class CustomUserAdmin(BaseUserAdmin):
     list_filter = ('is_approved', 'is_active')
     fieldsets = (
         (None, {'fields': ('name', 'email', 'phone_number', 'password')}),
-        ('Permissions', {'fields': ('is_active', 'is_staff', 'groups', 'user_permissions')}),
-        ('Custom fields', {'fields': ('role', 'is_approved')}),
+        ('Permissions', {'fields': ('is_staff', 'groups', 'user_permissions')}),
+        ('Custom fields', {'fields': ('role', 'is_approved',)}),
     )
     add_fieldsets = (
         (None, {
@@ -25,6 +25,21 @@ class CustomUserAdmin(BaseUserAdmin):
         }),
     )
     search_fields = ('name', 'email', 'phone_number')
+
+    def get_urls(self):
+        urls = super(CustomUserAdmin, self).get_urls()
+        custom_urls = [
+            path('get_user/<int:object_id>/', self.admin_site.admin_view(self.get_user), name='get_user'),
+        ]
+        return custom_urls + urls
+
+    def get_user(self, request, object_id):
+        user = CustomUser.objects.get(pk=object_id)
+        user.is_approved = CustomUser.APPROVED
+        user.is_active = True
+        user.save()
+        messages.success(request, f"Пользователь {user.name} одобрен.")
+        return redirect('admin:apps_user_changelist')
 
 
 admin.site.register(CustomUser, CustomUserAdmin)
