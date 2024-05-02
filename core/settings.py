@@ -6,7 +6,7 @@ SECRET_KEY = "4$#&em^q@%a%y5px+s71q&6(-2z7n$yxav(vf*fbqcs#g$4@%="
 
 DEBUG = True
 
-AUTH_USER_MODEL = 'user.User'
+AUTH_USER_MODEL = 'user.CustomUser'
 
 ALLOWED_HOSTS = []
 
