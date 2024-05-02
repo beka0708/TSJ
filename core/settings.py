@@ -8,12 +8,15 @@ SECRET_KEY = config('SECRET_KEY')
 
 DEBUG = config('DEBUG', cast=bool)
 
+AUTH_USER_MODEL = 'user.User'
+
 ALLOWED_HOSTS = []
 
 MY_APPS = ['apps.chat', 'apps.home', 'apps.my_house', 'apps.user']
 
 THIRD_PARTY_APPS = [
     'rest_framework',
+    'rest_framework_simplejwt',
 ]
 
 INSTALLED_APPS = [
@@ -110,6 +113,23 @@ REST_FRAMEWORK = {
 
 AUTH_USER_MODEL = 'user.MyUser'
 
+JAZZMIN_SETTINGS = {
+    "site_title": "Административная панель TSJ",
+    "site_header": "TSJ",
+    "show_ui_builder": True,
+    "navigation_expanded": True,
+    "show_sidebar": True,
+    "show_navbar": True,
+    "order_with_respect_to": "tsj",
+    "changeform_format": "horizontal_tabs",
+    "collapsible_sidebar": True,
+    "icons": {
+        "auth": "fas fa-users",
+        "auth.user": "fas fa-user",
+    },
+}
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
@@ -135,3 +155,30 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+}
+
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": config('SECRET_KEY'),
+    "VERIFYING_KEY": "",
+    "AUDIENCE": None,
+    "ISSUER": None,
+    "JSON_ENCODER": None,
+    "JWK_URL": None,
+    "LEEWAY": 0,
+}
