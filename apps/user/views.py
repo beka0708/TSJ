@@ -1,11 +1,14 @@
-from .serializers import UserSerializer
-from rest_framework import status
+from django.contrib.auth import get_user_model
+from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
-from django.contrib.auth import get_user_model, authenticate
+
 from .backends import PhoneNumberBackend
+from .models import DeviceToken
 from .permissions import AllowAny
+from .serializers import UserSerializer, DeviceTokenSerializer
+from .utils import generate_verification_code, send_verification_sms
 
 CustomUser = get_user_model()
 
@@ -16,9 +19,11 @@ class UserRegistrationView(APIView):
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            # user.is_active = False
-            # user.is_approved = CustomUser.PENDING
+            user = serializer.save()
+            verification_code = generate_verification_code()
+            send_verification_sms(user.phone_number)
+            user.verification_code = verification_code
+            user.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -43,4 +48,34 @@ class PhoneNumberAuthenticationView(APIView):
                 return Response({'error': 'Неверный номер телефона или пароль'}, status=status.HTTP_401_UNAUTHORIZED)
         else:
             return Response({'error': 'Требуются и номер телефона, и пароль'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+
+class DeviceTokenAPIView(generics.CreateAPIView):
+    queryset = DeviceToken.objects.all()
+    serializer_class = DeviceTokenSerializer
+
+
+class VerifyCodeView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        phone_number = request.data.get('phone_number', None)
+        verification_code = request.data.get('verification_code', None)
+
+        if phone_number and verification_code:
+            try:
+                user = CustomUser.objects.get(phone_number=phone_number)
+                if user.verification_code == verification_code:
+                    user.is_approved = True
+                    user.save()
+                    return Response({'message': 'Код подтверждения верный. Регистрация успешно завершена.'},
+                                    status=status.HTTP_200_OK)
+                else:
+                    return Response({'error': 'Неверный код подтверждения.'}, status=status.HTTP_400_BAD_REQUEST)
+            except CustomUser.DoesNotExist:
+                return Response({'error': 'Пользователь с указанным номером телефона не найден.'},
+                                status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({'error': 'Необходимо указать номер телефона и код подтверждения.'},
                             status=status.HTTP_400_BAD_REQUEST)

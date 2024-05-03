@@ -30,12 +30,15 @@ class CustomUserManager(BaseUserManager):
             raise ValueError('Superuser must have is_staff=True.')
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
+        if extra_fields.get('is_active') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
 
         # is_superuser = extra_fields.pop('is_superuser', False)
 
         # Создание пользователя с помощью create_user и установление is_superuser вручную
         user = self.create_user(phone_number, email, password, **extra_fields)
         user.is_superuser = True
+        user.is_active = True
         user.save(using=self._db)
         return user
 

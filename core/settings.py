@@ -9,6 +9,10 @@ SECRET_KEY = config('SECRET_KEY')
 
 DEBUG = config('DEBUG', cast=bool)
 
+API_KEY = config("API_KEY")
+
+SECRET_KEY_SMS = config("SECRET_KEY_SMS")
+
 AUTH_USER_MODEL = 'user.CustomUser'
 
 ALLOWED_HOSTS = []
