@@ -47,6 +47,7 @@ from django.utils import timezone  # Import Django's timezone module
 class VoteViewSet(viewsets.ModelViewSet):
     queryset = VoteNew.objects.all()
     serializer_class = VoteNewSerializer
+
     # permission_classes = [IsAuthenticated]
 
     def update(self, request, *args, **kwargs):

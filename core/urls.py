@@ -12,8 +12,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/home/', include('apps.home.urls')),
     path('api/v1/user/', include('apps.user.urls')),
-    path('voice_recording/<int:vote_new_id>/', VotesListView.as_view(), name='vote_list'),
-    path('', include(router.urls)),
+    path('api/v1/vote/', include('apps.home.urls'))
 
 ]
 

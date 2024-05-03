@@ -43,7 +43,7 @@ class FlatOwner(models.Model):
         verbose_name_plural = "Добавить владельца"
 
     def __str__(self):
-        return f'Владелец: {self.user.get_full_name()}, Квартира: {self.flat}'
+        return f'Владелец: {self.user.name()}, Квартира: {self.flat}'
 
 
 class FlatTenant(models.Model):
@@ -57,7 +57,7 @@ class FlatTenant(models.Model):
         verbose_name_plural = "Добавить квартиранта"
 
     def __str__(self):
-        return f'Квартирант: {self.user.get_full_name()}, Квартира {self.flat}'
+        return f'Квартирант: {self.user.name()}, Квартира {self.flat}'
 
 
 class Flat(models.Model):
@@ -143,22 +143,22 @@ VOTING = {
     'Вариантный': 'Вариантный'
 }
 
-
-class Vote(models.Model):
-    tsj = models.ForeignKey(TSJ, on_delete=models.CASCADE, verbose_name="ТСЖ")
-    title = models.CharField(max_length=100, verbose_name="Заголовок")
-    description = models.TextField(verbose_name="Описание")
-    vote_type = models.CharField(max_length=50, choices=VOTING, null=True, verbose_name="Выбор")
-    users_votes = models.ManyToManyField(User, verbose_name="Проголосовавшие")
-    created_date = models.DateTimeField(auto_now_add=True, null=True, verbose_name="Дата создания")
-    end_date = models.DateTimeField(null=True, verbose_name="Дата окончания")
-
-    class Meta:
-        verbose_name = 'Голосование'
-        verbose_name_plural = 'Голосование'
-
-    def __str__(self):
-        return self.title
+#
+# class Vote(models.Model):
+#     tsj = models.ForeignKey(TSJ, on_delete=models.CASCADE, verbose_name="ТСЖ")
+#     title = models.CharField(max_length=100, verbose_name="Заголовок")
+#     description = models.TextField(verbose_name="Описание")
+#     vote_type = models.CharField(max_length=50, choices=VOTING, null=True, verbose_name="Выбор")
+#     users_votes = models.ManyToManyField(User, verbose_name="Проголосовавшие")
+#     created_date = models.DateTimeField(auto_now_add=True, null=True, verbose_name="Дата создания")
+#     end_date = models.DateTimeField(null=True, verbose_name="Дата окончания")
+#
+#     class Meta:
+#         verbose_name = 'Голосование'
+#         verbose_name_plural = 'Голосование'
+#
+#     def __str__(self):
+#         return self.title
 
 
 class VoteNew(models.Model):

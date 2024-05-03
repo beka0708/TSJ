@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 
-from .models import TSJ, House, FlatOwner, FlatTenant, Flat, News, Request, HelpInfo, Vote
+from .models import TSJ, House, FlatOwner, FlatTenant, Flat, News, Request, HelpInfo
 from .models import *
 
 User = get_user_model()
@@ -65,12 +65,7 @@ class HelpInfoAdmin(admin.ModelAdmin):
     search_fields = ('tsj__name', 'title', 'url')
 
 
-@admin.register(Vote)
-class VoteAdmin(admin.ModelAdmin):
-    list_display = ('tsj', 'title', 'vote_type', 'created_date', 'end_date')
-    search_fields = ('tsj__name', 'title', 'vote_type')
-    list_filter = ('tsj', 'vote_type')
-    readonly_fields = ('created_date', 'end_date')
+
 
 
 admin.site.register(VoteNew)
