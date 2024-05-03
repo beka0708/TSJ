@@ -1,12 +1,13 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from phonenumber_field.modelfields import PhoneNumberField
 
 User = get_user_model()
 
 
 class TSJ(models.Model):
-    name = models.CharField(max_length=100)
-    house = models.ManyToManyField('House')
+    name = models.CharField(max_length=100, verbose_name="Название ТСЖ")
+    house = models.ManyToManyField('House', verbose_name="Дома для ТСЖ")
 
     class Meta:
         verbose_name = "ТСЖ"
@@ -17,12 +18,12 @@ class TSJ(models.Model):
 
 
 class House(models.Model):
-    name_block = models.CharField(max_length=100, null=True)
-    address = models.CharField(max_length=200)
-    geo_position = models.URLField()
-    floors = models.PositiveIntegerField()  # этажи
-    entrances = models.PositiveIntegerField()  # подъезды
-    flats_number = models.PositiveIntegerField()  # квартиры
+    name_block = models.CharField(max_length=100, null=True, verbose_name="Номер дома")
+    address = models.CharField(max_length=200, verbose_name="Адрес")
+    geo_position = models.URLField(verbose_name="Геолокация")
+    floors = models.PositiveIntegerField(verbose_name="Количество этажей")  # этажи
+    entrances = models.PositiveIntegerField(verbose_name="Количество подъездов")  # подъезды
+    flats_number = models.PositiveIntegerField(verbose_name="Количество квартир")  # квартиры
 
     class Meta:
         verbose_name = "Дома"
@@ -33,9 +34,9 @@ class House(models.Model):
 
 
 class FlatOwner(models.Model):
-    tsj = models.ForeignKey(TSJ, on_delete=models.CASCADE, null=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    flat = models.ForeignKey('Flat', on_delete=models.CASCADE)
+    tsj = models.ForeignKey(TSJ, on_delete=models.CASCADE, null=True, verbose_name="ТСЖ")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Владелец")
+    flat = models.ForeignKey('Flat', on_delete=models.CASCADE, verbose_name="Квартира")
 
     class Meta:
         verbose_name = "Владельцы"
@@ -46,10 +47,10 @@ class FlatOwner(models.Model):
 
 
 class FlatTenant(models.Model):
-    tsj = models.ForeignKey(TSJ, on_delete=models.CASCADE, null=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    flat = models.ForeignKey('Flat', on_delete=models.CASCADE)
-    owner = models.ForeignKey('FlatOwner', models.CASCADE, null=True)
+    tsj = models.ForeignKey(TSJ, on_delete=models.CASCADE, null=True, verbose_name="ТСЖ")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Арендатор")
+    flat = models.ForeignKey('Flat', on_delete=models.CASCADE, verbose_name="Квартира")
+    owner = models.ForeignKey('FlatOwner', models.CASCADE, null=True, verbose_name="Владелец квартиры")
 
     class Meta:
         verbose_name = "Квартирант"
@@ -60,8 +61,8 @@ class FlatTenant(models.Model):
 
 
 class Flat(models.Model):
-    house = models.ForeignKey('House', models.CASCADE, null=True)
-    number = models.PositiveIntegerField()
+    house = models.ForeignKey('House', models.CASCADE, null=True, verbose_name="Дом")
+    number = models.PositiveIntegerField(verbose_name="Номер квартиры")
 
     class Meta:
         verbose_name = "Квартиры"
@@ -79,13 +80,13 @@ TYPE = {
 
 
 class News(models.Model):
-    tsj = models.ForeignKey('TSJ', models.CASCADE, null=True)
-    type = models.CharField(max_length=100, choices=TYPE)
-    title = models.CharField(max_length=200)
-    description = models.TextField()
-    link = models.URLField()
-    created_date = models.DateTimeField(auto_now_add=True, null=True)
-    update_date = models.DateTimeField(auto_now=True)
+    tsj = models.ForeignKey('TSJ', models.CASCADE, null=True, verbose_name="ТСЖ")
+    type = models.CharField(max_length=100, choices=TYPE, verbose_name="Тип")
+    title = models.CharField(max_length=200, verbose_name="Заголовок")
+    description = models.TextField(verbose_name="Описание")
+    link = models.URLField(verbose_name="Ссылка на источник")
+    created_date = models.DateTimeField(auto_now_add=True, null=True, verbose_name="Дата создания")
+    update_date = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
 
     class Meta:
         verbose_name = "Новости"
@@ -102,17 +103,17 @@ TYPE_OWNERS = {
 
 
 class Request(models.Model):
-    name_owner = models.ForeignKey(FlatOwner, models.CASCADE, null=True)
-    tsj = models.ForeignKey(TSJ, models.CASCADE, null=True)
-    number_flat = models.ForeignKey(Flat, models.CASCADE, null=True)
-    name = models.CharField(max_length=100)
+    name_owner = models.ForeignKey(FlatOwner, models.CASCADE, null=True, verbose_name="Владелец")
+    tsj = models.ForeignKey(TSJ, models.CASCADE, null=True, verbose_name="ТСЖ")
+    number_flat = models.ForeignKey(Flat, models.CASCADE, null=True, verbose_name="Номер квартиры")
+    name = models.CharField(max_length=100, verbose_name="Имя")
     email = models.EmailField()
-    number_phone = models.CharField(max_length=32, null=True)
-    created_date = models.DateTimeField(auto_now_add=True, null=True)
+    number_phone = PhoneNumberField('Номер телефона', help_text='Пример: +996700777777', null=True)
+    created_date = models.DateTimeField(auto_now_add=True, null=True, verbose_name="Дата создания")
     status = models.CharField(max_length=50, choices=[
         ('pending', 'Ожидает'),
         ('approved', 'Одобрен'),
-        ('rejected', 'Отклонен')], default='pending', null=True)
+        ('rejected', 'Отклонен')], default='pending', null=True, verbose_name="Статус")
 
     class Meta:
         verbose_name = 'Запросы'
@@ -123,10 +124,10 @@ class Request(models.Model):
 
 
 class HelpInfo(models.Model):
-    tsj = models.ForeignKey(TSJ, models.CASCADE, null=True)
-    title = models.CharField(max_length=100)
-    url = models.URLField()
-    number = models.CharField(max_length=32)
+    tsj = models.ForeignKey(TSJ, models.CASCADE, null=True, verbose_name="ТСЖ")
+    title = models.CharField(max_length=100, verbose_name="Заголовок")
+    url = models.URLField(verbose_name="Ссылка")
+    number = models.CharField(max_length=32, verbose_name="Служебный номер")
 
     class Meta:
         verbose_name = 'Полезная Информация'
@@ -144,13 +145,13 @@ VOTING = {
 
 
 class Vote(models.Model):
-    tsj = models.ForeignKey(TSJ, on_delete=models.CASCADE)
-    title = models.CharField(max_length=100)
-    description = models.TextField()
-    vote_type = models.CharField(max_length=50, choices=VOTING, null=True)
-    users_votes = models.ManyToManyField(User)
-    created_date = models.DateTimeField(auto_now_add=True, null=True)
-    end_date = models.DateTimeField(null=True)
+    tsj = models.ForeignKey(TSJ, on_delete=models.CASCADE, verbose_name="ТСЖ")
+    title = models.CharField(max_length=100, verbose_name="Заголовок")
+    description = models.TextField(verbose_name="Описание")
+    vote_type = models.CharField(max_length=50, choices=VOTING, null=True, verbose_name="Выбор")
+    users_votes = models.ManyToManyField(User, verbose_name="Проголосовавшие")
+    created_date = models.DateTimeField(auto_now_add=True, null=True, verbose_name="Дата создания")
+    end_date = models.DateTimeField(null=True, verbose_name="Дата окончания")
 
     class Meta:
         verbose_name = 'Голосование'
