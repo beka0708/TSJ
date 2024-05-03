@@ -1,5 +1,7 @@
 from datetime import timedelta
 from pathlib import Path
+
+import django.contrib.auth
 from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -12,12 +14,13 @@ AUTH_USER_MODEL = 'user.CustomUser'
 
 ALLOWED_HOSTS = []
 
-MY_APPS = ['apps.chat', 'apps.home', 'apps.my_house', 'apps.user']
+MY_APPS = ['apps.chat', 'apps.home', 'apps.my_house', 'apps.user', ]
 
 THIRD_PARTY_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'phonenumber_field',
+
 ]
 
 INSTALLED_APPS = [

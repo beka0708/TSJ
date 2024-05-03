@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.auth import get_user_model
 
 from .models import TSJ, House, FlatOwner, FlatTenant, Flat, News, Request, HelpInfo, Vote
+from .models import *
 
 User = get_user_model()
 
@@ -70,3 +71,7 @@ class VoteAdmin(admin.ModelAdmin):
     search_fields = ('tsj__name', 'title', 'vote_type')
     list_filter = ('tsj', 'vote_type')
     readonly_fields = ('created_date', 'end_date')
+
+
+admin.site.register(VoteNew)
+# admin.site.register(VoteRecord)

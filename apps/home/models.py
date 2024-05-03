@@ -125,7 +125,7 @@ class Request(models.Model):
 
 class HelpInfo(models.Model):
     tsj = models.ForeignKey(TSJ, models.CASCADE, null=True, verbose_name="ТСЖ")
-    title = models.CharField(max_length=100, verbose_name="Заголовок")
+    title = models.CharField(max_length=100, verbose_name="Заголовок", null=True, blank=True)
     url = models.URLField(verbose_name="Ссылка")
     number = models.CharField(max_length=32, verbose_name="Служебный номер")
 
@@ -160,13 +160,38 @@ class Vote(models.Model):
     def __str__(self):
         return self.title
 
+
+class VoteNew(models.Model):
+    tjs = models.ForeignKey(TSJ, on_delete=models.CASCADE)
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    deadline = models.DateTimeField()
+    yes_count = models.IntegerField(default=0)
+    no_count = models.IntegerField(default=0)
+
+
+    def __str__(self):
+        return self.title
+
+
+class Votes(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    vote = models.CharField(max_length=10)
+    vote_new = models.ForeignKey(VoteNew, related_name='votes', on_delete=models.CASCADE)
+
+
+# class VoteRecord(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     vote = models.ForeignKey(VoteNew, on_delete=models.CASCADE)
+#     choice = models.CharField(max_length=3, choices=(("да", "Да"), ("нет", "Нет")))
+
 # class BaseVoting(models.Model):
 #     title = models.CharField(max_length=100)
 #     description = models.TextField()
 #     vote_type = models.CharField(max_length=50, choices=[('за/против', 'за/против'), ('вариативный', 'вариативный')])
 #     tsj = models.ForeignKey(TSJ, on_delete=models.CASCADE)
 #     users_votes = models.ManyToManyField(User)
-#
+# #
 #     class Meta:
 #         abstract = True
 #
