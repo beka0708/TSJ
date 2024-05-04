@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-
-from .models import TSJ, House, FlatOwner, FlatTenant, Flat, News, Request, HelpInfo, Vote
+from django.utils.translation import gettext_lazy as _
+from .models import TSJ, House, FlatOwner, FlatTenant, Flat,\
+    News, Request, HelpInfo, Vote, Request_Vote_News
 
 User = get_user_model()
 
@@ -26,12 +27,16 @@ class TSJAdmin(admin.ModelAdmin):
 class HouseAdmin(admin.ModelAdmin):
     list_display = ('name_block', 'address', 'geo_position', 'floors', 'entrances', 'flats_number')
     search_fields = ('name_block', 'address')
+    ordering = ('name_block',)
 
 
 @admin.register(Flat)
 class FlatAdmin(admin.ModelAdmin):
-    list_display = ('house', 'number')
+    list_display = ('number', 'house', )
     search_fields = ('house__name_block', 'number')
+    ordering = ('house', 'number',)
+    list_filter = ('house', )
+    raw_id_fields = ('house', )
     inlines = [FlatOwnerInline]
 
 
@@ -66,7 +71,12 @@ class HelpInfoAdmin(admin.ModelAdmin):
 
 @admin.register(Vote)
 class VoteAdmin(admin.ModelAdmin):
-    list_display = ('tsj', 'title', 'vote_type', 'created_date', 'end_date')
-    search_fields = ('tsj__name', 'title', 'vote_type')
-    list_filter = ('tsj', 'vote_type')
-    readonly_fields = ('created_date', 'end_date')
+    list_display = ('title', 'created_date', 'deadline')
+    # search_fields = ('tsj__name', 'title')
+    # list_filter = ('tsj',)
+    # readonly_fields = ('created_date', 'end_date')
+
+
+@admin.register(Request_Vote_News)
+class RequestVoteAdmin(admin.ModelAdmin):
+    list_display = ('title', 'created_date')

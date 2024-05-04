@@ -8,7 +8,7 @@ from .backends import PhoneNumberBackend
 from .models import DeviceToken
 from .permissions import AllowAny
 from .serializers import UserSerializer, DeviceTokenSerializer
-from .utils import generate_verification_code, send_verification_sms
+from .utils import SendSMS
 
 CustomUser = get_user_model()
 
@@ -20,10 +20,8 @@ class UserRegistrationView(APIView):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            verification_code = generate_verification_code()
-            send_verification_sms(user.phone_number)
-            user.verification_code = verification_code
-            user.save()
+            # Отправляем SMS с кодом подтверждения
+            SendSMS.send_confirmation_sms(user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

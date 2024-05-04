@@ -27,10 +27,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     ]
 
     DoesNotExist = None
-    # phone_number = PhoneNumberField('Номер телефона', region='KG', unique=True,
-    #                                 help_text='Пример: +996700777777', null=True)
-    phone_number = models.CharField(max_length=13, verbose_name='Номер телефона', unique=True,
+    phone_number = PhoneNumberField('Номер телефона', region='KG', unique=True,
                                     help_text='Пример: +996700777777', null=True)
+    # phone_number = models.CharField(max_length=13, verbose_name='Номер телефона', unique=True,
+    #                                 help_text='Пример: +996700777777', null=True)
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=100, verbose_name="Имя", )
     address = models.CharField(max_length=255, verbose_name="Адрес", )

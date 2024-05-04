@@ -10,7 +10,10 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', cast=bool)
 
 API_KEY = config("API_KEY")
-
+NIKITA_LOGIN = config("NIKITA_LOGIN")
+NIKITA_PASSWORD = config("NIKITA_PASSWORD")
+NIKITA_SENDER = config("NIKITA_SENDER")
+NIKITA_TEST = config("NIKITA_TEST")
 SECRET_KEY_SMS = config("SECRET_KEY_SMS")
 
 AUTH_USER_MODEL = 'user.CustomUser'
@@ -93,9 +96,9 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 JAZZMIN_SETTINGS = {
-    "site_title": "ITLab",
-    "site_header": "ITLab",
-    "site_brand": "ITLab",
+    "site_title": "TSJ",
+    "site_header": "TSJ",
+    "site_brand": "TSJ",
     "site_logo_classes": "img-square",
     "user_avatar": None,
     "search_model": ["auth.User", "auth.Group"],
