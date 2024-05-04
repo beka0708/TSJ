@@ -1,6 +1,8 @@
 import os
 from datetime import timedelta
 from pathlib import Path
+from decouple import config
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -10,16 +12,15 @@ DEBUG = True
 
 AUTH_USER_MODEL = 'user.CustomUser'
 
-API_KEY = config("API_KEY")
+API_KEY = config('API_KEY', default='default_api_key')
 
-SECRET_KEY_SMS = config("SECRET_KEY_SMS")
+SECRET_KEY_SMS = config('SECRET_KEY_SMS', default='default_secret_key')
 
-AUTH_USER_MODEL = 'user.CustomUser'
 
 ALLOWED_HOSTS = []
 
 
-MY_APPS = ['apps.chat', 'apps.home', 'apps.my_house', 'apps.user']
+MY_APPS = ['apps.chat', 'apps.home', 'apps.my_house', 'apps.user', 'apps.userprofile']
 
 THIRD_PARTY_APPS = [
     'rest_framework',
@@ -136,11 +137,6 @@ JAZZMIN_SETTINGS = {
     "changeform_format": "horizontal_tabs",
     "changeform_format_overrides": {"auth.user": "collapsible", "auth.group": "vertical_tabs"},
 }
-
-
-
-
-
 
 
 # JAZZMIN_SETTINGS = {

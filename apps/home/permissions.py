@@ -2,8 +2,13 @@ from rest_framework import permissions
 from apps.user.models import CustomUser
 
 
-class IsManager(permissions.BasePermission):
+class IsManagerOrOwnerOrTenant(permissions.BasePermission):
 
     def has_permission(self, request, view):
 
-        return request.user and request.user.is_authenticated and request.user.role == CustomUser.MANAGER
+        if not request.user or not request.user.is_authenticated:
+            return False
+
+        allowed_roles = {CustomUser.MANAGER, CustomUser.OWNER, CustomUser.TENANT}
+        return request.user.role in allowed_roles
+
