@@ -1,14 +1,33 @@
 from rest_framework import permissions
-from apps.user.models import CustomUser
 
-
-class IsManagerOrOwnerOrTenant(permissions.BasePermission):
+class IsAdminOrReadOnly(permissions.BasePermission):
+    """
+    Разрешение, которое позволяет только администраторам редактировать объекты.
+    """
 
     def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return request.user.role == "ADMIN"
 
-        if not request.user or not request.user.is_authenticated:
-            return False
 
-        allowed_roles = {CustomUser.MANAGER, CustomUser.OWNER, CustomUser.TENANT}
-        return request.user.role in allowed_roles
+class IsManagerOrReadOnly(permissions.BasePermission):
+    """
+    Разрешение, которое позволяет только менеджерам редактировать объекты.
+    """
 
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return request.user.role == "MANAGER"
+
+
+class IsOwnerOrReadOnly(permissions.BasePermission):
+    """
+    Разрешение, которое позволяет только владельцам редактировать объекты.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return obj.owner == request.user

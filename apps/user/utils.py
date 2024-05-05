@@ -1,48 +1,114 @@
-import logging
-import random
+from datetime import datetime
 import string
-
+import random
 import requests
-from decouple import config
+import xmltodict
+from dicttoxml import dicttoxml
+from django.conf import settings
+from uuid import uuid4
+from .models import CustomUser
 
-logger = logging.getLogger(__name__)
 
-
-def generate_verification_code(length=4):
+class SendSMS:
     """
-    Генерирует случайный код подтверждения указанной длины.
+    A class for sending SMS messages using an API.
     """
-    characters = string.digits
-    verification_code = ''.join(random.choice(characters) for _ in range(length))
-    return verification_code
 
+    __url = "http://smspro.nikita.kg/api/message"
 
-def send_verification_sms(phone_number):
-    """
-    Отправляет SMS с этим кодом на указанный номер телефона.
-    """
-    verification_code = generate_verification_code(length=4)
-    api_key = config("API_KEY")
-    secret_key = config("SECRET_KEY_SMS")
-    sms_text = f"Ваш код для подтверждения: {verification_code}"
-    url = "https://api.smspro.nikita.kg/send"
-    payload = {
-        "api_key": api_key,
-        "secret_key": secret_key,
-        "phone": phone_number,
-        "text": sms_text
-    }
+    __headers = {"Content-Type": "application/xml"}
 
-    try:
-        response = requests.post(url, data=payload)
-        response.raise_for_status()
-    except requests.RequestException as e:
-        logger.error(f"Error sending verification SMS: {e}")
-        return None
+    __xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        "<message>"
+        "<login>{login}</login>"
+        "<pwd>{password}</pwd>"
+        "<id>{id}</id>"
+        "<sender>{sender}</sender>"
+        "<text>{text}</text>"
+        "<phones>{phones}</phones>"
+        "</message>"
+    )
 
-    if response.status_code == 200:
-        logger.info("Verification SMS sent successfully")
+    def __init__(self, phone, text):
+        """
+         Initialize the SMS message with the recipient's phone number and the message text.
+        Args:
+            phone (str or list of str): The recipient's phone number(s).
+            text (str): The message text to be sent.
+        """
+        if type(phone) not in (list, tuple):
+            self.phone = [phone]
+        else:
+            self.phone = phone
+        self.text = text
+
+    def __get_phones(self):
+        """
+        Format the phone number(s) for the SMS API.
+        Returns:
+            str: A formatted string of phone numbers for the API.
+        """
+        phones = ""
+        for phone in self.phone:
+            phones += f"<phone>{phone}</phone>"
+        return phones
+
+    def __get_xml(self):
+        xml = self.__xml.format(
+            login="login",
+            password="password",
+            id=self.__get_id(),
+            sender="sender",
+            text=f"Use {self.text} to verify your  account.",
+            phones=self.__get_phones(),
+        )
+        return xml
+
+    def __get_id(self):
+        id = str(uuid4())[:10]
+        return id
+
+    @property
+    def send(self):
+        response = requests.post(
+            url=self.__url, data=self.__get_xml(), headers=self.__headers
+        )
+        response_dict = xmltodict.parse(response.text)
+        status = response_dict["response"]["status"]
+        return status
+
+    @staticmethod
+    def set_verification_code(length=4):
+        """
+        Генерирует случайный код подтверждения указанной длины.
+        """
+        characters = string.digits
+        verification_code = "".join(random.choice(characters) for _ in range(length))
         return verification_code
-    else:
-        logger.error("Error sending verification SMS")
-        return None
+
+    @classmethod
+    def send_confirmation_sms(cls, user_obj: CustomUser) -> bool:
+        """Method for sending confirmation sms to a new or old user"""
+        verification_code = cls.set_verification_code()
+        id_string = "%s%d" % (user_obj.id, datetime.now().timestamp())
+        data = {
+            "login": settings.NIKITA_LOGIN,
+            "pwd": settings.NIKITA_PASSWORD,
+            "id": id_string,
+            "sender": "SMSPRO.KG",
+            "text": f"Ваш код активации:  {verification_code}",
+            "phones": [str(user_obj.phone_number).replace("+", "")],
+            # 'test': 1
+        }
+        page = dicttoxml(
+            data, custom_root="message", item_func=lambda x: x[:-1], attr_type=False
+        )
+        response = requests.post(url=cls.__url, data=page, headers=cls.__headers)
+        response_dict = xmltodict.parse(response.text)
+        print(response_dict)
+        status = response_dict["response"]["status"]
+        SendSMS(user_obj.name, verification_code).send
+        user_obj.verification_code = verification_code
+        user_obj.save()
+        return True if status in ("0", "11") else False

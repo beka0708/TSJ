@@ -1,27 +1,28 @@
-from .models import MyDetails, Request
+from .models import Profile, Request
 from .serializers import ProfileSerializer, ChangePasswordSerializer, RequestSerializer
 from rest_framework import status
 from rest_framework.response import Response
-from ..home.permissions import IsManagerOrOwnerOrTenant
+from apps.home.permissions import IsManagerOrReadOnly
 from rest_framework.permissions import IsAuthenticated
 
 from rest_framework import viewsets, mixins
 
 
-class ProfileViewSet(mixins.RetrieveModelMixin,
-                     mixins.UpdateModelMixin,
-                     viewsets.GenericViewSet):
-    queryset = MyDetails.objects.all()
+
+class ProfileViewSet(viewsets.ModelViewSet):
+    queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
+    lookup_field = 'id'
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return self.request.user.profile
 
 
-class ChangePasswordViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
+class ChangePasswordViewSet(viewsets.ModelViewSet):
     serializer_class = ChangePasswordSerializer
     permission_classes = [IsAuthenticated]
+
 
     def get_object(self):
         return self.request.user
@@ -45,5 +46,4 @@ class ChangePasswordViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
 class RequestViewSet(viewsets.ModelViewSet):
     queryset = Request.objects.all()
     serializer_class = RequestSerializer
-    permission_classes = [IsManagerOrOwnerOrTenant]
-
+    permission_classes = [IsManagerOrReadOnly]

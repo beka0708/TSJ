@@ -1,39 +1,28 @@
-from rest_framework import serializers
-from .models import MyDetails, User, Request
 from django.contrib.auth import password_validation
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['name', 'email', 'address', 'phone_number']
+from rest_framework import serializers
+from .models import Profile, Request
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    name = serializers.CharField(source='user.name')
+    email = serializers.EmailField(source='user.email')
+    phone_number = serializers.CharField(source='user.phone_number')
+    address = serializers.CharField(source='user.address')
 
     class Meta:
-        model = MyDetails
-        fields = ['user', 'cover']
+        model = Profile
+        fields = ['id', 'name', 'email', 'phone_number', 'address', 'cover']
 
     def update(self, instance, validated_data):
-        user_data = validated_data.pop('user', None)  # Извлекаем данные пользователя, если они есть
-        instance.cover = validated_data.get('cover', instance.cover)
-
-        # Обновляем данные пользователя, если они предоставлены
-        if user_data:
-            user = instance.user
-            user_serializer = UserSerializer(user, data=user_data, partial=True)
-            if user_serializer.is_valid():
-                user_serializer.save()  # Сохраняем изменения в модели User
-
-        instance.save()  # Сохраняем изменения в модели MyDetails
+        user_data = validated_data.pop('user', {})
+        user = instance.user
+        user.name = user_data.get('name', user.name)
+        user.email = user_data.get('email', user.email)
+        user.phone_number = user_data.get('phone_number', user.phone_number)
+        user.address = user_data.get('address', user.address)
+        user.save()
+        instance.save()
         return instance
-
-    # def update(self, instance, validated_data):
-    #     instance.cover = validated_data.get('cover', instance.cover)
-    #     instance.save()
-    #     return instance
 
 
 class ChangePasswordSerializer(serializers.Serializer):

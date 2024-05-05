@@ -1,54 +1,67 @@
 from rest_framework import serializers
-from .models import (
-    TSJ, House, FlatOwner, FlatTenant, Flat,
-    News, HelpInfo, Vote
-)
+from .models import *
 
 
-class TSJSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TSJ
-        fields = ('id', 'name', 'house')
-
-
-class HouseSerializer(serializers.ModelSerializer):
+class HouseSerializers(serializers.ModelSerializer):
     class Meta:
         model = House
-        fields = ('id', 'name_block', 'address', 'geo_position', 'floors', 'entrances', 'flats_number')
+        fields = "__all__"
 
 
-class FlatOwnerSerializer(serializers.ModelSerializer):
+class FlatOwnerSerializers(serializers.ModelSerializer):
     class Meta:
         model = FlatOwner
-        fields = ('id', 'tsj', 'user', 'flat')
+        fields = "__all__"
 
 
-class FlatTenantSerializer(serializers.ModelSerializer):
+class FlatTenantSerializers(serializers.ModelSerializer):
     class Meta:
         model = FlatTenant
-        fields = ('id', 'tsj', 'user', 'flat', 'owner')
+        fields = "__all__"
 
 
-class FlatSerializer(serializers.ModelSerializer):
+class FlatSerializers(serializers.ModelSerializer):
     class Meta:
         model = Flat
-        fields = ('id', 'house', 'number')
+        fields = "__all__"
 
 
-class NewsSerializer(serializers.ModelSerializer):
+class NewsOwnerSerializers(serializers.ModelSerializer):
+    description = CKEditor5Field()
+
     class Meta:
         model = News
-        fields = ('id', 'tsj', 'type', 'title', 'description', 'link', 'created_date', 'update_date')
-
-
-class HelpInfoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = HelpInfo
-        fields = ('id', 'tsj', 'title', 'url', 'number')
+        fields = "__all__"
 
 
 class VoteSerializer(serializers.ModelSerializer):
+    description = CKEditor5Field()
+
     class Meta:
         model = Vote
-        fields = ('id', 'tsj', 'title', 'description', 'vote_type', 'users_votes', 'created_date', 'end_date')
+        fields = "__all__"
+
+
+class VotesSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField()
+
+    class Meta:
+        model = Votes
+        fields = ["user", "vote"]
+
+
+class RequestVoteSerializers(serializers.ModelSerializer):
+    description = CKEditor5Field()
+
+    class Meta:
+        model = Request_Vote_News
+        fields = "__all__"
+#
+#
+# class VoteRecordSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = VoteRecord
+#         fields = '__all__'
+
+
 

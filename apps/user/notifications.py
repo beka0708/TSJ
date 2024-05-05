@@ -3,7 +3,9 @@ from firebase_admin import credentials
 from firebase_admin import messaging
 
 # Путь к файлу конфигурации Firebase
-cred = credentials.Certificate("C:/Users/LENOVO/PycharmProjects/TSJ/firebase_service_account.json")
+cred = credentials.Certificate(
+    "C:/Users/LENOVO/PycharmProjects/TSJ/firebase_service_account.json"
+)
 
 
 # Инициализация приложения Firebase

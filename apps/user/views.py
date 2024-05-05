@@ -8,7 +8,7 @@ from .backends import PhoneNumberBackend
 from .models import DeviceToken
 from .permissions import AllowAny
 from .serializers import UserSerializer, DeviceTokenSerializer
-from .utils import generate_verification_code, send_verification_sms
+from .utils import SendSMS
 
 CustomUser = get_user_model()
 
@@ -20,10 +20,8 @@ class UserRegistrationView(APIView):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            verification_code = generate_verification_code()
-            send_verification_sms(user.phone_number)
-            user.verification_code = verification_code
-            user.save()
+            # Отправляем SMS с кодом подтверждения
+            SendSMS.send_confirmation_sms(user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -33,23 +31,32 @@ class PhoneNumberAuthenticationView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        phone_number = request.data.get('phone_number', None)
-        password = request.data.get('password', None)
+        phone_number = request.data.get("phone_number", None)
+        password = request.data.get("password", None)
 
         if phone_number and password:
-            user = PhoneNumberBackend.authenticate(self, request=request, phone_number=phone_number, password=password)
+            user = PhoneNumberBackend.authenticate(
+                self, request=request, phone_number=phone_number, password=password
+            )
             if user:
                 refresh = RefreshToken.for_user(user)
                 access_token = AccessToken.for_user(user)
-                return Response({
-                    'refresh': str(refresh),
-                    'access': str(access_token),
-                })
+                return Response(
+                    {
+                        "refresh": str(refresh),
+                        "access": str(access_token),
+                    }
+                )
             else:
-                return Response({'error': 'Неверный номер телефона или пароль'}, status=status.HTTP_401_UNAUTHORIZED)
+                return Response(
+                    {"error": "Неверный номер телефона или пароль"},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
         else:
-            return Response({'error': 'Требуются и номер телефона, и пароль'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Требуются и номер телефона, и пароль"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
 
 class DeviceTokenAPIView(generics.CreateAPIView):
@@ -61,8 +68,8 @@ class VerifyCodeView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        phone_number = request.data.get('phone_number', None)
-        verification_code = request.data.get('verification_code', None)
+        phone_number = request.data.get("phone_number", None)
+        verification_code = request.data.get("verification_code", None)
 
         if phone_number and verification_code:
             try:
@@ -70,13 +77,24 @@ class VerifyCodeView(APIView):
                 if user.verification_code == verification_code:
                     user.is_approved = True
                     user.save()
-                    return Response({'message': 'Код подтверждения верный. Регистрация успешно завершена.'},
-                                    status=status.HTTP_200_OK)
+                    return Response(
+                        {
+                            "message": "Код подтверждения верный. Регистрация успешно завершена."
+                        },
+                        status=status.HTTP_200_OK,
+                    )
                 else:
-                    return Response({'error': 'Неверный код подтверждения.'}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response(
+                        {"error": "Неверный код подтверждения."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
             except CustomUser.DoesNotExist:
-                return Response({'error': 'Пользователь с указанным номером телефона не найден.'},
-                                status=status.HTTP_404_NOT_FOUND)
+                return Response(
+                    {"error": "Пользователь с указанным номером телефона не найден."},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
         else:
-            return Response({'error': 'Необходимо указать номер телефона и код подтверждения.'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Необходимо указать номер телефона и код подтверждения."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
