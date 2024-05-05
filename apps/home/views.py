@@ -1,5 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.permissions import *
+from django.utils import timezone
 from rest_framework.views import APIView
 
 from .serializers import *
@@ -42,7 +43,6 @@ class RequestViewSet(viewsets.ModelViewSet):
     serializer_class = RequestSerializers
 
 
-from django.utils import timezone  # Import Django's timezone module
 
 class VoteViewSet(viewsets.ModelViewSet):
     queryset = VoteNew.objects.all()
