@@ -16,12 +16,21 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('email', 'phone_number', 'is_active', 'name', 'password', 'confirm_password', 'address', 'role',
-                  'is_approved')
+        fields = (
+            "email",
+            "phone_number",
+            "is_active",
+            "name",
+            "password",
+            "confirm_password",
+            "address",
+            "role",
+            "is_approved",
+        )
 
     def create(self, validated_data):
-        password = validated_data.pop('password')
-        confirm_password = validated_data.pop('confirm_password')
+        password = validated_data.pop("password")
+        confirm_password = validated_data.pop("confirm_password")
 
         if password != confirm_password:
             raise serializers.ValidationError("Passwords do not match")
@@ -31,11 +40,11 @@ class UserSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data.pop('verification_code', None)  # Удаление поля verification_code из ответа
+        data.pop("verification_code", None)  # Удаление поля verification_code из ответа
         return data
 
 
 class DeviceTokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeviceToken
-        fields = '__all__'
+        fields = "__all__"
