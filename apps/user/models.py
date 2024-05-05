@@ -1,8 +1,5 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
-
-from phonenumber_field.modelfields import PhoneNumberField
-
 from apps.user.managers import CustomUserManager
 
 
@@ -51,14 +48,14 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'phone_number'
     REQUIRED_FIELDS = ['email']
 
-    def save(self, *args, **kwargs):
-        if self.is_status == CustomUser.APPROVED:
-            self.is_active = True
-        elif self.is_status == CustomUser.NOT_APPROVED:
-            self.is_active = False
-        else:
-            self.is_active = False
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     if self.is_status == CustomUser.APPROVED:
+    #         self.is_active = True
+    #     elif self.is_status == CustomUser.NOT_APPROVED:
+    #         self.is_active = False
+    #     else:
+    #         self.is_active = False
+    #     super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name

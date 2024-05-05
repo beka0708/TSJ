@@ -1,16 +1,17 @@
-from .models import Profile
-from .serializers import ProfileSerializer, ChangePasswordSerializer
-from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticated
+from .models import MyDetails, Request
+from .serializers import ProfileSerializer, ChangePasswordSerializer, RequestSerializer
+from rest_framework import status
 from rest_framework.response import Response
+from ..home.permissions import IsManagerOrOwnerOrTenant
+from rest_framework.permissions import IsAuthenticated
+
+from rest_framework import viewsets, mixins
 
 
-class ProfileList(generics.ListAPIView):
-    queryset = Profile.objects.all()
-    serializer_class = ProfileSerializer
-
-
-class ProfileDetail(generics.RetrieveUpdateAPIView):
+class ProfileViewSet(mixins.RetrieveModelMixin,
+                     mixins.UpdateModelMixin,
+                     viewsets.GenericViewSet):
+    queryset = MyDetails.objects.all()
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated]
 
@@ -18,7 +19,7 @@ class ProfileDetail(generics.RetrieveUpdateAPIView):
         return self.request.user.profile
 
 
-class ChangePasswordView(generics.UpdateAPIView):
+class ChangePasswordViewSet(mixins.UpdateModelMixin, viewsets.GenericViewSet):
     serializer_class = ChangePasswordSerializer
     permission_classes = [IsAuthenticated]
 
@@ -39,3 +40,10 @@ class ChangePasswordView(generics.UpdateAPIView):
             return Response({"status": "password set"}, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class RequestViewSet(viewsets.ModelViewSet):
+    queryset = Request.objects.all()
+    serializer_class = RequestSerializer
+    permission_classes = [IsManagerOrOwnerOrTenant]
+

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import (
     TSJ, House, FlatOwner, FlatTenant, Flat,
-    News, Request, HelpInfo, Vote
+    News, HelpInfo, Vote
 )
 
 
@@ -39,12 +39,6 @@ class NewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
         fields = ('id', 'tsj', 'type', 'title', 'description', 'link', 'created_date', 'update_date')
-
-
-class RequestSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Request
-        fields = ('id', 'name_owner', 'tsj', 'number_flat', 'name', 'email', 'number_phone', 'created_date', 'status')
 
 
 class HelpInfoSerializer(serializers.ModelSerializer):

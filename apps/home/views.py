@@ -2,9 +2,9 @@ from rest_framework import viewsets
 from .permissions import IsManagerOrOwnerOrTenant
 from .serializers import (
     TSJSerializer, HouseSerializer, FlatSerializer, FlatOwnerSerializer, FlatTenantSerializer,
-    NewsSerializer, RequestSerializer, HelpInfoSerializer, VoteSerializer
+    NewsSerializer, HelpInfoSerializer, VoteSerializer
 )
-from .models import TSJ, House, FlatOwner, FlatTenant, Flat, News, Request, HelpInfo, Vote
+from .models import TSJ, House, FlatOwner, FlatTenant, Flat, News, HelpInfo, Vote
 
 
 class TSJViewSet(viewsets.ModelViewSet):
@@ -40,12 +40,6 @@ class FlatViewSet(viewsets.ModelViewSet):
 class NewsViewSet(viewsets.ModelViewSet):
     queryset = News.objects.all()
     serializer_class = NewsSerializer
-    permission_classes = [IsManagerOrOwnerOrTenant]
-
-
-class RequestViewSet(viewsets.ModelViewSet):
-    queryset = Request.objects.all()
-    serializer_class = RequestSerializer
     permission_classes = [IsManagerOrOwnerOrTenant]
 
 

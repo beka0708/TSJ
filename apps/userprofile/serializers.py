@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Profile, User
+from .models import MyDetails, User, Request
 from django.contrib.auth import password_validation
 
 
@@ -13,14 +13,27 @@ class ProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer()
 
     class Meta:
-        model = Profile
+        model = MyDetails
         fields = ['user', 'cover']
-        read_only_fields = ['user']  # Если пользователь не должен изменять user
 
     def update(self, instance, validated_data):
+        user_data = validated_data.pop('user', None)  # Извлекаем данные пользователя, если они есть
         instance.cover = validated_data.get('cover', instance.cover)
-        instance.save()
+
+        # Обновляем данные пользователя, если они предоставлены
+        if user_data:
+            user = instance.user
+            user_serializer = UserSerializer(user, data=user_data, partial=True)
+            if user_serializer.is_valid():
+                user_serializer.save()  # Сохраняем изменения в модели User
+
+        instance.save()  # Сохраняем изменения в модели MyDetails
         return instance
+
+    # def update(self, instance, validated_data):
+    #     instance.cover = validated_data.get('cover', instance.cover)
+    #     instance.save()
+    #     return instance
 
 
 class ChangePasswordSerializer(serializers.Serializer):
@@ -39,3 +52,9 @@ class ChangePasswordSerializer(serializers.Serializer):
             raise serializers.ValidationError({"confirm_new_password": "Новые пароли не совпадают."})
         password_validation.validate_password(data['new_password'], self.context['request'].user)
         return data
+
+
+class RequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Request
+        fields = ('id', 'name_owner', 'tsj', 'number_flat', 'name', 'email', 'number_phone', 'created_date', 'status')

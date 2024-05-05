@@ -43,7 +43,7 @@ class FlatOwner(models.Model):
         verbose_name_plural = "Добавить владельца"
 
     def __str__(self):
-        return f'Владелец: {self.user.get_full_name()}, Квартира: {self.flat}'
+        return f'Владелец: {self.user.name}, Квартира: {self.flat}'
 
 
 class FlatTenant(models.Model):
@@ -57,7 +57,7 @@ class FlatTenant(models.Model):
         verbose_name_plural = "Добавить квартиранта"
 
     def __str__(self):
-        return f'Квартирант: {self.user.get_full_name()}, Квартира {self.flat}'
+        return f'Квартирант: {self.user.name}, Квартира {self.flat}'
 
 
 class Flat(models.Model):
@@ -100,27 +100,6 @@ TYPE_OWNERS = {
     'Житель': 'Житель',
     'Квартирант': 'Квартирант'
 }
-
-
-class Request(models.Model):
-    name_owner = models.ForeignKey(FlatOwner, models.CASCADE, null=True, verbose_name="Владелец")
-    tsj = models.ForeignKey(TSJ, models.CASCADE, null=True, verbose_name="ТСЖ")
-    number_flat = models.ForeignKey(Flat, models.CASCADE, null=True, verbose_name="Номер квартиры")
-    name = models.CharField(max_length=100, verbose_name="Имя")
-    email = models.EmailField()
-    number_phone = PhoneNumberField('Номер телефона', help_text='Пример: +996700777777', null=True)
-    created_date = models.DateTimeField(auto_now_add=True, null=True, verbose_name="Дата создания")
-    status = models.CharField(max_length=50, choices=[
-        ('pending', 'Ожидает'),
-        ('approved', 'Одобрен'),
-        ('rejected', 'Отклонен')], default='pending', null=True, verbose_name="Статус")
-
-    class Meta:
-        verbose_name = 'Запросы'
-        verbose_name_plural = 'Запросы'
-
-    def __str__(self):
-        return self.name
 
 
 class HelpInfo(models.Model):

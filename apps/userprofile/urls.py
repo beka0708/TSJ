@@ -1,8 +1,14 @@
-from django.urls import path
-from .views import ProfileList, ProfileDetail, ChangePasswordView
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import ProfileViewSet, ChangePasswordViewSet, RequestViewSet
+
+router = DefaultRouter()
+router.register(r'profiles', ProfileViewSet, basename='profile-list-create-retrieve-update'),
+router.register(r'change-password/', ChangePasswordViewSet, basename='change-password'),
+router.register(r'requests', RequestViewSet, basename='request'),
 
 urlpatterns = [
-    path('profiles/', ProfileList.as_view(), name='profile-list'),
-    path('profiles/', ProfileDetail.as_view(), name='profile-detail'),
-    path('change-password/', ChangePasswordView.as_view(), name='change-password'),
+    path('', include(router.urls)),
 ]
+
+

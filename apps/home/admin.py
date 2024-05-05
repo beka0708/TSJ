@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 
-from .models import TSJ, House, FlatOwner, FlatTenant, Flat, News, Request, HelpInfo, Vote
+from .models import TSJ, House, FlatOwner, FlatTenant, Flat, News, HelpInfo, Vote
 
 User = get_user_model()
 
@@ -47,15 +47,6 @@ class NewsAdmin(admin.ModelAdmin):
     search_fields = ('tsj__name', 'title')
     list_filter = ('tsj', 'type')
     readonly_fields = ('created_date', 'update_date')
-
-
-@admin.register(Request)
-class RequestAdmin(admin.ModelAdmin):
-    list_display = ('name_owner', 'tsj', 'number_flat', 'name', 'email', 'number_phone', 'created_date', 'status')
-    search_fields = (
-        'name_owner__user__name', 'tsj__name', 'number_flat__house__name_block', 'name', 'email', 'number_phone')
-    list_filter = ('tsj', 'status')
-    readonly_fields = ('created_date',)
 
 
 @admin.register(HelpInfo)
