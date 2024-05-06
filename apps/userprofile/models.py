@@ -5,6 +5,7 @@ from apps.home.models import FlatOwner, TSJ, Flat
 
 User = get_user_model()
 
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile',
                                 verbose_name="Пользователь", help_text="Чей профиль")
