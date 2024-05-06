@@ -14,7 +14,7 @@ AUTH_USER_MODEL = 'user.CustomUser'
 
 ALLOWED_HOSTS = []
 
-MY_APPS = ['apps.chat', 'apps.home', 'apps.my_house', 'apps.user', ]
+MY_APPS = ['apps.chat', 'apps.home', 'apps.my_house', 'apps.user', 'apps.profile_user']
 
 THIRD_PARTY_APPS = [
     'rest_framework',
