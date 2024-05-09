@@ -56,12 +56,5 @@ class RequestVoteSerializers(serializers.ModelSerializer):
     class Meta:
         model = Request_Vote_News
         fields = "__all__"
-#
-#
-# class VoteRecordSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = VoteRecord
-#         fields = '__all__'
-
 
 

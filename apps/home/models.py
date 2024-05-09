@@ -167,6 +167,8 @@ VOTING = {
 
 class Request_Vote_News(models.Model):
     tsj = models.ForeignKey(TSJ, on_delete=models.CASCADE, verbose_name="ТСЖ")
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             verbose_name="От пользователя")
     choice = models.CharField(
         max_length=20, choices=VOTING, verbose_name="Новость или Голосование"
     )

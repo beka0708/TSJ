@@ -1,17 +1,14 @@
 from rest_framework import serializers
 from .models import *
 
+from apps.home.serializers import RequestVoteSerializers
+from apps.userprofile.serializers import RequestSerializer
+
 
 class DomKomSerializers(serializers.ModelSerializer):
     class Meta:
         model = DomKom
         fields = ('id', 'title', 'description', 'url', 'image', 'info')
-
-
-class YourFormsSerializers(serializers.ModelSerializer):
-    class Meta:
-        model = YourForms
-        fields = ('id', 'user')
 
 
 class CameraSerializers(serializers.ModelSerializer):
@@ -27,8 +24,6 @@ class ReceiptsSerializers(serializers.ModelSerializer):
 
 
 class HelpInfoSerializers(serializers.ModelSerializer):
-    description = CKEditor5Field()
-
     class Meta:
         model = HelpInfo
         fields = ('id', 'tsj', 'title', 'url', 'number')

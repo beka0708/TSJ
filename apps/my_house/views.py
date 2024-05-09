@@ -1,29 +1,33 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-
-from .models import DomKom, YourForms, Camera, Receipts, HelpInfo
+from apps.home.models import Request_Vote_News
+from .models import DomKom, Camera, Receipts, HelpInfo
 from .serializers import (
-    DomKomSerializers, YourFormsSerializers, CameraSerializers,
+    DomKomSerializers, CameraSerializers,
     ReceiptsSerializers, HelpInfoSerializers
 )
+from apps.home.serializers import RequestVoteSerializers
+from apps.userprofile.serializers import RequestSerializer
 
 
-class DomKomViewSet(viewsets.ReadOnlyModelViewSet):
+class DomKomViewSet(viewsets.ModelViewSet):
+    queryset = DomKom.objects.all()
     serializer_class = DomKomSerializers
     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        user = self.request.user
-        return DomKom.objects.filter(info=user)
+    # def get_queryset(self):
+    #     user = self.request.user
+    #     return DomKom.objects.filter(info=user)
 
 
-class YourFormsViewSet(viewsets.ModelViewSet):
-    serializer_class = YourFormsSerializers
+class HistoryRequestViewSet(viewsets.ModelViewSet):
+    serializer_class = RequestVoteSerializers
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
-        return YourForms.objects.filter(user=user)
+        user_requests = Request_Vote_News.objects.filter(user=user)
+        return user_requests
 
 
 class CameraViewSet(viewsets.ModelViewSet):

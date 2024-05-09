@@ -1,6 +1,6 @@
 from django.contrib.auth import password_validation
 from rest_framework import serializers
-from .models import Profile, Request
+from .models import Profile, Request, ResidentHistory, ResidenceCertificate
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -26,9 +26,9 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class ChangePasswordSerializer(serializers.Serializer):
-    old_password = serializers.CharField(required=True)
-    new_password = serializers.CharField(required=True)
-    confirm_new_password = serializers.CharField(required=True)
+    old_password = serializers.CharField(required=True, write_only=True)
+    new_password = serializers.CharField(required=True, write_only=True)
+    confirm_new_password = serializers.CharField(required=True, write_only=True)
 
     def validate_old_password(self, value):
         user = self.context['request'].user
@@ -47,3 +47,15 @@ class RequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Request
         fields = ('id', 'name_owner', 'tsj', 'number_flat', 'name', 'email', 'number_phone', 'created_date', 'status')
+
+
+class ResidenceCertificateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ResidenceCertificate
+        fields = ['id', 'owner_surname', 'resident_surname', 'address', 'issue_date']
+
+
+class ResidentHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ResidentHistory
+        fields = ['id', 'flat', 'resident_surname', 'start_date', 'end_date', 'owner']

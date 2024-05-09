@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Справка о месте жительства</title>
+    <style>
+        @font-face {
+            font-family: "DejaVuSans";
+            src: url("/font/DejaVuSans.ttf");
+        }
+        body {
+            font-family: "DejaVuSans", sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .content {
+            margin-bottom: 20px;
+        }
+        .signature {
+            margin-top: 50px;
+            float: right;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>СПРАВКА</h1>
+            <h2>о месте жительства</h2>
+        </div>
+        <div class="content">
+            <p>Выдана гражданину <strong>{{ certificate.resident_name }}</strong> в том, что он (она) действительно проживает по адресу: <strong>{{ certificate.resident_address }}</strong>.</p>
+            <p>Справка выдана <strong>{{ certificate.created_at }}</strong> от должностного лица: <strong>{{ certificate.manager_name }}</strong>.</p>
+        </div>
+        <div class="signature">
+            <p>______________________</p>
+            <p>(подпись)</p>
+            <p>Дата: _______________</p>
+        </div>
+    </div>
+</body>
+</html>

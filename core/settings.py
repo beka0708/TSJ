@@ -1,7 +1,6 @@
 import os
 from datetime import timedelta
 from pathlib import Path
-
 from decouple import config
 
 
@@ -41,6 +40,7 @@ THIRD_PARTY_APPS = [
     "rest_framework_simplejwt",
     "phonenumber_field",
     "django_ckeditor_5",
+    "reportlab",
 ]
 
 INSTALLED_APPS = (
@@ -134,7 +134,6 @@ CKEDITOR_5_CONFIGS = {
             "bulletedList",
             "numberedList",
             "blockQuote",
-            "imageUpload"
         ],
     },
     "comment": {

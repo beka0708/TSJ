@@ -1,9 +1,8 @@
 from django.contrib import admin
-from .models import DomKom, HelpInfo, Receipts, YourForms, Camera
+from .models import DomKom, HelpInfo, Receipts, Camera
 
 admin.site.register(DomKom)
 admin.site.register(Receipts)
-admin.site.register(YourForms)
 admin.site.register(Camera)
 
 

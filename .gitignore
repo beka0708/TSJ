@@ -249,3 +249,5 @@ poetry.toml
 
 # LSP config files
 pyrightconfig.json
+avatars
+font
