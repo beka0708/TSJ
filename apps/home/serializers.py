@@ -5,49 +5,41 @@ from .models import *
 class HouseSerializers(serializers.ModelSerializer):
     class Meta:
         model = House
-        fields = '__all__'
+        fields = "__all__"
 
 
 class FlatOwnerSerializers(serializers.ModelSerializer):
     class Meta:
         model = FlatOwner
-        fields = '__all__'
+        fields = "__all__"
 
 
 class FlatTenantSerializers(serializers.ModelSerializer):
     class Meta:
         model = FlatTenant
-        fields = '__all__'
+        fields = "__all__"
 
 
 class FlatSerializers(serializers.ModelSerializer):
     class Meta:
         model = Flat
-        fields = '__all__'
+        fields = "__all__"
 
 
 class NewsOwnerSerializers(serializers.ModelSerializer):
+    description = CKEditor5Field()
+
     class Meta:
         model = News
-        fields = '__all__'
+        fields = "__all__"
 
 
-class RequestSerializers(serializers.ModelSerializer):
+class VoteSerializer(serializers.ModelSerializer):
+    description = CKEditor5Field()
+
     class Meta:
-        model = Request
-        fields = '__all__'
-
-
-class HelpInfoSerializers(serializers.ModelSerializer):
-    class Meta:
-        model = HelpInfo
-        fields = '__all__'
-
-
-class VoteNewSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = VoteNew
-        fields = '__all__'
+        model = Vote
+        fields = "__all__"
 
 
 class VotesSerializer(serializers.ModelSerializer):
@@ -55,15 +47,18 @@ class VotesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Votes
-        fields = ['user', 'vote']
+        fields = ["user", "vote"]
+
+
+class RequestVoteSerializers(serializers.ModelSerializer):
+    description = CKEditor5Field()
+
+    class Meta:
+        model = Request_Vote_News
+        fields = "__all__"
 #
 #
 # class VoteRecordSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = VoteRecord
-#         fields = '__all__'
-
-# class VoteSerializers(serializers.ModelSerializer):
-#     class Meta:
-#         model = Vote
 #         fields = '__all__'
