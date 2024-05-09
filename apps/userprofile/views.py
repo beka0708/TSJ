@@ -1,11 +1,15 @@
-from .models import Profile, Request
-from .serializers import ProfileSerializer, ChangePasswordSerializer, RequestSerializer
+from django.contrib.auth import get_user_model
 from rest_framework import status
-from rest_framework.response import Response
-from apps.home.permissions import IsManagerOrReadOnly
+from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
-from rest_framework import viewsets, mixins
+from apps.home.permissions import IsManagerOrReadOnly
+from .models import Profile, Request, ResidenceCertificate, ResidentHistory
+from .serializers import ProfileSerializer, ChangePasswordSerializer, \
+    RequestSerializer, ResidenceCertificateSerializer, ResidentHistorySerializer
+
+User = get_user_model()
 
 
 class ProfileViewSet(viewsets.ModelViewSet):
@@ -14,17 +18,13 @@ class ProfileViewSet(viewsets.ModelViewSet):
     lookup_field = 'id'
     permission_classes = [IsAuthenticated]
 
-    def get_object(self):
-        return self.request.user.profile
-
 
 class ChangePasswordViewSet(viewsets.ModelViewSet):
     serializer_class = ChangePasswordSerializer
     permission_classes = [IsAuthenticated]
 
-
-    def get_object(self):
-        return self.request.user
+    def get_queryset(self):
+        return User.objects.filter(id=self.request.user.id)
 
     def update(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -45,4 +45,10 @@ class ChangePasswordViewSet(viewsets.ModelViewSet):
 class RequestViewSet(viewsets.ModelViewSet):
     queryset = Request.objects.all()
     serializer_class = RequestSerializer
+    permission_classes = [IsManagerOrReadOnly]
+
+
+class ResidentHistoryViewSet(viewsets.ModelViewSet):
+    queryset = ResidentHistory.objects.all()
+    serializer_class = ResidentHistorySerializer
     permission_classes = [IsManagerOrReadOnly]

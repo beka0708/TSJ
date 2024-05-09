@@ -51,12 +51,6 @@ class RequestVoteViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOwnerOrReadOnly]
 
 
-# class RequestViewSet(viewsets.ModelViewSet):
-#     queryset = Request.objects.all()
-#     serializer_class = RequestSerializers
-#     permission_classes = [IsOwnerOrReadOnly]
-
-
 class VoteViewSet(viewsets.ModelViewSet):
     queryset = Vote.objects.all()
     serializer_class = VoteSerializer

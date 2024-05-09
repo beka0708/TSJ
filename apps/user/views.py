@@ -21,7 +21,7 @@ class UserRegistrationView(APIView):
         if serializer.is_valid():
             user = serializer.save()
             # Отправляем SMS с кодом подтверждения
-            SendSMS.send_confirmation_sms(user)
+            # SendSMS.send_confirmation_sms(user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
