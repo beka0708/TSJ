@@ -6,7 +6,7 @@ class PhoneNumberBackend(BaseBackend):
         from .models import CustomUser
 
         try:
-            user = CustomUser.objects.get(phone_number=phone_number)
+            user = CustomUser.objects.get(phone_number=phone_number, password=password)
             if user.check_password(password):
                 return user
         except CustomUser.DoesNotExist:

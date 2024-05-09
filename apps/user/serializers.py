@@ -35,9 +35,11 @@ class UserSerializer(serializers.ModelSerializer):
         if password != confirm_password:
             raise serializers.ValidationError("Passwords do not match")
 
+        if CustomUser.objects.filter(phone_number=validated_data['phone_number']).exists():
+            raise serializers.ValidationError({"phone_number": "Этот номер телефона уже используется."})
+
         user = CustomUser.objects.create_user(password=password, **validated_data)
         return user
-
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data.pop("verification_code", None)  # Удаление поля verification_code из ответа
