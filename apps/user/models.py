@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
-from phonenumber_field.formfields import PhoneNumberField
+from phonenumber_field.modelfields import PhoneNumberField
 
 from apps.user.managers import CustomUserManager
 
@@ -33,6 +33,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         unique=True,
         help_text="Пример: +996700777777",
         null=True,
+
     )
     # phone_number = models.CharField(max_length=13, verbose_name='Номер телефона', unique=True,
     #                                 help_text='Пример: +996700777777', null=True)

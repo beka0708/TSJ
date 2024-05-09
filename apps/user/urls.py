@@ -11,4 +11,7 @@ urlpatterns = [
     path("login/", PhoneNumberAuthenticationView.as_view(), name="phone_number_login"),
     path("device_token/", DeviceTokenAPIView.as_view(), name="device-token"),
     path("code/", VerifyCodeView.as_view(), name="verify_code"),
+    ######
+    path('verify-code/', VerifyCodeView.as_view(), name='verify-code'),
+    # path('set-new-password/', SetNewPasswordView.as_view(), name='set-new-password'),
 ]

@@ -7,6 +7,8 @@ from dicttoxml import dicttoxml
 from django.conf import settings
 from uuid import uuid4
 from .models import CustomUser
+##########
+from twilio.rest import Client
 
 
 class SendSMS:
@@ -112,3 +114,20 @@ class SendSMS:
         user_obj.verification_code = verification_code
         user_obj.save()
         return True if status in ("0", "11") else False
+
+#########################################################################################
+#
+#
+# def send_confirmation_sms(user):
+#     client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+#     verification_code = random.randint(1000, 9999)  # Генерация случайного 4-значного кода
+#     user.verification_code = verification_code  # Сохранение кода в модели пользователя
+#     user.save(update_fields=['verification_code'])  # Обновляем только поле с кодом
+#     message = client.messages.create(
+#         body=f"Ваш код для сброса пароля: {verification_code}",
+#         to=str(user.phone_number),
+#         from_=settings.TWILIO_PHONE_NUMBER
+#     )
+#     return message.sid  # Возвращаем ID сообщения от Twilio для возможного логирования
+#
+#

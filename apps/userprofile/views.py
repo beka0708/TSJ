@@ -8,7 +8,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets, mixins
 
 
-
 class ProfileViewSet(viewsets.ModelViewSet):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
@@ -22,7 +21,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
 class ChangePasswordViewSet(viewsets.ModelViewSet):
     serializer_class = ChangePasswordSerializer
     permission_classes = [IsAuthenticated]
-
 
     def get_object(self):
         return self.request.user

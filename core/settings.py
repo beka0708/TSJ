@@ -11,13 +11,21 @@ SECRET_KEY = config("SECRET_KEY")
 
 DEBUG = config("DEBUG", cast=bool)
 
-API_KEY = config("API_KEY")
-NIKITA_LOGIN = config("NIKITA_LOGIN")
-NIKITA_PASSWORD = config("NIKITA_PASSWORD")
-NIKITA_SENDER = config("NIKITA_SENDER")
-NIKITA_TEST = config("NIKITA_TEST")
-SECRET_KEY_SMS = config("SECRET_KEY_SMS")
+API_KEY = config("API_KEY", default="your_default_api_key")
+NIKITA_LOGIN = config("NIKITA_LOGIN", default="default_login")
+NIKITA_PASSWORD = config("NIKITA_PASSWORD", default="default_password")
+NIKITA_SENDER = config("NIKITA_SENDER", default="default_sender")
+NIKITA_TEST = config("NIKITA_TEST", default=True)  # Пример для булевого значения
+SECRET_KEY_SMS = config("SECRET_KEY_SMS", default="default_secret_key_sms")
 AUTH_USER_MODEL = "user.CustomUser"
+
+# API_KEY = config("API_KEY")
+# NIKITA_LOGIN = config("NIKITA_LOGIN")
+# NIKITA_PASSWORD = config("NIKITA_PASSWORD")
+# NIKITA_SENDER = config("NIKITA_SENDER")
+# NIKITA_TEST = config("NIKITA_TEST")
+# SECRET_KEY_SMS = config("SECRET_KEY_SMS")
+# AUTH_USER_MODEL = "user.CustomUser"
 #
 # API_KEY = config('API_KEY', default='default_api_key')
 #
@@ -419,3 +427,9 @@ SIMPLE_JWT = {
     "JWK_URL": None,
     "LEEWAY": 0,
 }
+
+
+# settings.py
+TWILIO_ACCOUNT_SID = 'ACcb9b1bae7ecd37c4665782f7a53bc019'
+TWILIO_AUTH_TOKEN = '60a4ffd5c7623a009c3729923004c51f'
+TWILIO_PHONE_NUMBER = '+13343263917'

@@ -1,5 +1,6 @@
 from rest_framework import permissions
 
+
 class IsAdminOrReadOnly(permissions.BasePermission):
     """
     Разрешение, которое позволяет только администраторам редактировать объекты.
