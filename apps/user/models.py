@@ -1,7 +1,8 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
-
+from django.core.exceptions import ValidationError
+import re
 from apps.user.managers import CustomUserManager
 
 
@@ -87,6 +88,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = "Аккаунт"
         verbose_name_plural = "Аккаунты"
+
+    def clean(self):
+        super().clean()
+        # Проверяем, что имя содержит только буквы (кириллица и латиница допустимы)
+        if not re.match(r'^[а-яА-ЯёЁa-zA-Z\s]+$', self.name):
+            raise ValidationError("Имя должно содержать только буквы.")
 
 
 class DeviceToken(models.Model):

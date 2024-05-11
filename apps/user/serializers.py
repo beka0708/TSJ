@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from phonenumber_field.serializerfields import PhoneNumberField
-
+from django.core.exceptions import ValidationError
+import re
 from .models import DeviceToken
 
 CustomUser = get_user_model()
@@ -14,6 +15,20 @@ class UserSerializer(serializers.ModelSerializer):
     is_active = serializers.BooleanField(read_only=True)
     is_approved = serializers.CharField(read_only=True)
     phone_number = PhoneNumberField()
+
+    def validate_address(self, value):
+        print("Validating address:", value)
+        parts = value.split(',')
+        if len(parts) != 4:
+            raise serializers.ValidationError(
+                "Адрес должен состоять из четырех частей: город, улица, номер дома, номер квартиры, разделенных запятыми.")
+        try:
+            house_number = int(parts[2].strip())  # Номер дома
+            apartment_number = int(parts[3].strip())  # Номер квартиры
+        except ValueError:
+            raise serializers.ValidationError("Номер дома и номер квартиры должны быть числами.")
+
+        return value
 
     class Meta:
         model = CustomUser
