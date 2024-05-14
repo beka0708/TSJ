@@ -1,4 +1,7 @@
+from datetime import datetime
 from io import BytesIO
+
+from reportlab.lib.colors import black
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
 from reportlab.lib.pagesizes import letter
@@ -13,9 +16,13 @@ from django.contrib.auth import get_user_model
 from django.utils.html import format_html
 from django.utils.encoding import smart_str
 from apps.user.utils import SendSMS
-from apps.userprofile.models import Request, Profile, ResidentHistory, ResidenceCertificate
+from apps.userprofile.models import Request, Profile, ResidenceCertificate
 from django.contrib import messages
 from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
+from reportlab.lib.styles import getSampleStyleSheet
+
 
 User = get_user_model()
 
@@ -91,43 +98,6 @@ class RequestAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Request, RequestAdmin)
-admin.site.register(ResidentHistory)
-
-
-# @admin.register(ResidenceCertificate)
-# class ResidenceCertificateAdmin(admin.ModelAdmin):
-#     actions = ['generate_pdf']
-#
-#     def generate_pdf(self, request, queryset):
-#         response = HttpResponse(content_type='application/pdf')
-#         response['Content-Disposition'] = 'attachment; filename="certificates.pdf"'
-#
-#         buffer = BytesIO()
-#         p = canvas.Canvas(buffer)
-#
-#         for certificate in queryset:
-#             textobject = p.beginText()
-#             textobject.setTextOrigin(10, 730)
-#             textobject.setFont("Helvetica", 14)
-#
-#             text = f"Справка об местожительстве\n\n" \
-#                    f"ФИО жителя: {certificate.owner_surname}\n" \
-#                    f"Адрес: {certificate.address}\n" \
-#                    f"ФИО менеджера: {certificate.created_by}\n" \
-#                    f"Дата создания: {certificate.issue_date}"
-#
-#             textobject.textLine(text)
-#             p.drawText(textobject)
-#             p.showPage()
-#
-#         p.save()
-#         buffer.seek(0)
-#         response.write(buffer.getvalue())
-#
-#         return response
-#     generate_pdf.short_description = "Сгенерировать PDF для выбранных справок"
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  - - - - - - - - - -  - - - -
 
 # @admin.register(ResidenceCertificate)
 # class ResidenceCertificateAdmin(admin.ModelAdmin):
@@ -150,60 +120,73 @@ admin.site.register(ResidentHistory)
 
 # - - - - - - - - - - - -- -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -- - -
 
-# @admin.register(ResidenceCertificate)
-# class ResidenceCertificateAdmin(admin.ModelAdmin):
-#     actions = ['generate_pdf']
-#
-#     def generate_pdf(self, request, queryset):
-#         buffer = BytesIO()
-#         pdf = canvas.Canvas(buffer, pagesize=letter)
-#
-#         # Добавим шрифт DejaVuSans
-#         pdfmetrics.registerFont(TTFont('DejaVuSans', 'font/DejaVuSans.ttf'))
-#
-#         # Установим шрифт для текста
-#         pdf.setFont('DejaVuSans', 12)
-#
-#         # Начинаем создание PDF
-#         pdf.drawString(100, 750, "Справка об местожительстве")
-#
-#         y_position = 700  # Начальная позиция Y
-#
-#         for certificate in queryset:
-#             y_position -= 20
-#             pdf.drawString(100, y_position, f"ФИО жителя: {certificate.owner_surname}")
-#             y_position -= 20
-#             pdf.drawString(100, y_position, f"Адрес: {certificate.address}")
-#             y_position -= 20
-#             pdf.drawString(100, y_position, f"ФИО менеджера: {certificate.created_by}")
-#             y_position -= 20
-#             pdf.drawString(100, y_position, f"Дата создания: {certificate.issue_date}")
-#
-#         pdf.showPage()
-#         pdf.save()
-#
-#         buffer.seek(0)
-#         response = HttpResponse(buffer, content_type='application/pdf')
-#         response['Content-Disposition'] = 'attachment; filename="certificates.pdf"'
-#         return response
-#
-#     generate_pdf.short_description = "Сгенерировать PDF для выбранных справок"
+def generate_certificate(pdf, certificate, y_position):
+    # Регистрация шрифтов
+    pdfmetrics.registerFont(TTFont('DejaVuSans', 'font/DejaVuSans.ttf'))
+    pdfmetrics.registerFont(TTFont('DejaVuSans-Bold', 'font/DejaVuSans-Bold.ttf'))
+
+    # Установка шрифта для текста
+    pdf.setFont('DejaVuSans', 12)
+
+    # Рамка для справки
+    pdf.rect(50, y_position - 180, 500, 150)
+
+    # Логотип или печать
+    pdf.drawImage("avatars/logo.png", 50, y_position - 140, width=150, height=92)
+    seal = Image('avatars/3.jpg', 50, 50)
+    seal.drawOn(pdf, 400, y_position - 400)
+
+    # Заголовок
+    pdf.setFont('DejaVuSans-Bold', 16)
+    pdf.drawString(250, y_position - 200, "СПРАВКА")
+    pdf.setFont('DejaVuSans', 12)
+
+    # Дата и номер справки
+    pdf.drawString(50, y_position - 170, f"Дата: {certificate.created_date}")
+
+    # Отступ для текста
+    text_indent = 70
+
+    # ФИО жителя
+    pdf.drawString(text_indent, y_position - 220, f"Выдана гражданину: {certificate.owner_name}")
+
+    # Адрес
+    pdf.drawString(text_indent, y_position - 240, f"в том что он (она) действительно проживает по адресу: {certificate.address}")
+
+    # Разделительная линия
+    pdf.setLineWidth(1)
+    pdf.setStrokeColor(black)
+    pdf.line(text_indent, y_position - 260, 550, y_position - 260)
+
+    # ФИО менеджера и дата создания
+    pdf.drawString(text_indent, y_position - 280, f"Справка выдана: {certificate.created_date}, от должностного лица: {certificate.manager}")
+
+    # Линии для подписи
+    pdf.line(text_indent, y_position - 350, 300, y_position - 350)
+    pdf.drawString(text_indent, y_position - 360, "Подпись гражданина")
+
+    pdf.line(400, y_position - 350, 600, y_position - 350)
+    pdf.drawString(400, y_position - 360, "Подпись должностного лица")
+
 
 @admin.register(ResidenceCertificate)
 class ResidenceCertificateAdmin(admin.ModelAdmin):
     actions = ['generate_pdf']
 
     def generate_pdf(self, request, queryset):
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="certificates.pdf"'
+        buffer = BytesIO()
+        pdf = canvas.Canvas(buffer, pagesize=letter)
+        y_position = 750
 
         for certificate in queryset:
-            html = render_to_string('admin/certificate_template.html', {'certificate': certificate})
-            pisa_status = pisa.CreatePDF(html, dest=response, encoding='UTF-8', font_path='font/DejaVuSans.ttf')
-            if pisa_status.err:
-                return HttpResponse('Ошибка при создании PDF', status=400)
+            generate_certificate(pdf, certificate, y_position)
+            y_position -= 400
 
+        pdf.save()
+        buffer.seek(0)
+
+        response = HttpResponse(buffer, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="certificates.pdf"'
         return response
 
     generate_pdf.short_description = "Сгенерировать PDF для выбранных справок"
-

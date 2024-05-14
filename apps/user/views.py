@@ -38,14 +38,20 @@ class PhoneNumberAuthenticationView(APIView):
                 self, request=request, phone_number=phone_number, password=password
             )
             if user:
-                refresh = RefreshToken.for_user(user)
-                access_token = AccessToken.for_user(user)
-                return Response(
-                    {
-                        "refresh": str(refresh),
-                        "access": str(access_token),
-                    }
-                )
+                if user.is_active and user.is_approved:
+                    refresh = RefreshToken.for_user(user)
+                    access_token = AccessToken.for_user(user)
+                    return Response(
+                        {
+                            "refresh": str(refresh),
+                            "access": str(access_token),
+                        }
+                    )
+                else:
+                    return Response(
+                        {"error": "Пользователь не активирован или не одобрен."},
+                        status=status.HTTP_403_FORBIDDEN,
+                    )
             else:
                 return Response(
                     {"error": "Неверный номер телефона или пароль"},

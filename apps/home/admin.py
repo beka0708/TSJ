@@ -9,7 +9,7 @@ from .models import (
     Flat,
     News,
     Vote,
-    Request_Vote_News,
+    Request_Vote_News, ApartmentHistory,
 )
 
 User = get_user_model()
@@ -86,3 +86,17 @@ class VoteAdmin(admin.ModelAdmin):
 @admin.register(Request_Vote_News)
 class RequestVoteAdmin(admin.ModelAdmin):
     list_display = ("title", "created_date")
+
+
+class ApartmentHistoryAdmin(admin.ModelAdmin):
+    list_display = ('flat', 'owner', 'get_tenant_names', 'change_date', 'description')
+    list_filter = ('flat', 'owner', 'change_date')
+    search_fields = ('description', 'flat__number', 'owner__user__name', 'tenant__user__name')
+
+    def get_tenant_names(self, obj):
+        return ", ".join([tenant.user.name for tenant in obj.tenant.all()])
+    get_tenant_names.short_description = 'Tenants'
+
+
+admin.site.register(ApartmentHistory, ApartmentHistoryAdmin)
+

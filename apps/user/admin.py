@@ -93,9 +93,9 @@ class CustomUserAdmin(BaseUserAdmin):
         # return redirect('admin:apps_user_changelist')
 
 
-class DeviceTokenAdmin(admin.ModelAdmin):
-    list_display = ("user", "token")
-
-
-admin.site.register(DeviceToken, DeviceTokenAdmin)
+# class DeviceTokenAdmin(admin.ModelAdmin):
+#     list_display = ("user", "token")
+#
+#
+# admin.site.register(DeviceToken, DeviceTokenAdmin)
 admin.site.register(CustomUser, CustomUserAdmin)

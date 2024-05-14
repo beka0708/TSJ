@@ -1,13 +1,14 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
+
 from apps.home.models import Request_Vote_News
-from .models import DomKom, Camera, Receipts, HelpInfo
+from apps.home.serializers import RequestVoteSerializers
+from .models import DomKom, Camera, Receipts, HelpInfo, Payment, PaymentType, Debt
 from .serializers import (
     DomKomSerializers, CameraSerializers,
-    ReceiptsSerializers, HelpInfoSerializers
+    ReceiptsSerializers, HelpInfoSerializers, PaymentSerializer,
+    PaymentTypeSerializer, DebtSerializer
 )
-from apps.home.serializers import RequestVoteSerializers
-from apps.userprofile.serializers import RequestSerializer
 
 
 class DomKomViewSet(viewsets.ModelViewSet):
@@ -47,3 +48,18 @@ class ReceiptsViewSet(viewsets.ModelViewSet):
 class HelpInfoViewSet(viewsets.ModelViewSet):
     queryset = HelpInfo.objects.all()
     serializer_class = HelpInfoSerializers
+
+
+class PaymentViewSet(viewsets.ModelViewSet):
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerializer
+
+
+class PaymentTypeViewSet(viewsets.ModelViewSet):
+    queryset = PaymentType.objects.all()
+    serializer_class = PaymentTypeSerializer
+
+
+class DebtViewSet(viewsets.ModelViewSet):
+    queryset = Debt.objects.all()
+    serializer_class = DebtSerializer

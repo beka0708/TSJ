@@ -8,7 +8,7 @@ from .views import (
     NewsOwnerViewSet,
     VoteViewSet,
     VotesListView,
-    RequestVoteViewSet,
+    RequestVoteViewSet, ApartmentHistoryViewSet,
 )
 
 router = DefaultRouter()
@@ -19,6 +19,7 @@ router.register("flats", FlatViewSet)
 router.register("news_owners", NewsOwnerViewSet)
 router.register(r"votes", VoteViewSet)
 router.register(r"request_votes", RequestVoteViewSet)
+router.register(r'apartment_history', ApartmentHistoryViewSet, basename="flat_history")
 
 urlpatterns = [
     path("", include(router.urls)),

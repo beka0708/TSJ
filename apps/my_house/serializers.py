@@ -1,7 +1,6 @@
 from rest_framework import serializers
+
 from .models import *
-from apps.home.serializers import RequestVoteSerializers
-from apps.userprofile.serializers import RequestSerializer
 
 
 class DomKomSerializers(serializers.ModelSerializer):
@@ -26,3 +25,21 @@ class HelpInfoSerializers(serializers.ModelSerializer):
     class Meta:
         model = HelpInfo
         fields = ('id', 'tsj', 'title', 'url', 'number')
+
+
+class PaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = '__all__'
+
+
+class PaymentTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PaymentType
+        fields = '__all__'
+
+
+class DebtSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Debt
+        fields = '__all__'
