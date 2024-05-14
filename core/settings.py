@@ -40,6 +40,7 @@ INSTALLED_APPS = (
             "django.contrib.messages",
             "django.contrib.staticfiles",
             "channels",
+            "daphne"
         ]
         + MY_APPS
         + THIRD_PARTY_APPS
