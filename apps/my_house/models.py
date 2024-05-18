@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from django_ckeditor_5.fields import CKEditor5Field
-from apps.home.models import TSJ
+from apps.home.models import TSJ, Flat, FlatOwner, FlatTenant
 from apps.userprofile.models import Profile
 
 User = get_user_model()
@@ -21,6 +21,49 @@ class DomKom(models.Model):
     class Meta:
         verbose_name = "Мой дом"
         verbose_name_plural = "Мой дом"
+
+
+class Payment(models.Model):
+    flat = models.ForeignKey(Flat, on_delete=models.CASCADE, null=True)
+    payment_type = models.CharField(max_length=100)
+    cost = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    payment_date = models.DateField()
+    status = models.BooleanField(default=False)  # True - оплачено, False - не оплачено
+
+    def __str__(self):
+        return self.payment_type
+
+    class Meta:
+        verbose_name = "История платежей"
+        verbose_name_plural = "История платежей"
+
+
+class PaymentType(models.Model):
+    name = models.CharField(max_length=100)
+    cost = models.DecimalField(max_digits=10, decimal_places=2, null=True)
+    is_recurring = models.BooleanField(default=False)  # периодический или одноразовый
+    period = models.IntegerField(null=True, blank=True)  # Период в днях, если платеж периодический
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Тип оплаты"
+        verbose_name_plural = "Тип оплаты"
+
+
+class Debt(models.Model):
+    apartment = models.ForeignKey(Flat, on_delete=models.CASCADE)
+    payment_type = models.ForeignKey(PaymentType, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    created_date = models.DateField()
+
+    def __str__(self):
+        return self.payment_type.name
+
+    class Meta:
+        verbose_name = "Задолженности квартиры"
+        verbose_name_plural = "Задолженности квартиры"
 
 
 class Camera(models.Model):

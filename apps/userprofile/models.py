@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from apps.userprofile.utils import SendSMS
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
+
 from apps.home.models import FlatOwner, TSJ, Flat
 
 User = get_user_model()
@@ -73,31 +73,31 @@ class Request(models.Model):
 
 
 class ResidenceCertificate(models.Model):
-    owner_surname = models.CharField(max_length=100, verbose_name="Фамилия владельца")
-    resident_surname = models.CharField(max_length=100, blank=True, verbose_name="Фамилия жителя")
+    owner_name = models.CharField(max_length=100, verbose_name="Фамилия владельца", null=True)
+    tenant_name = models.CharField(max_length=100, blank=True, verbose_name="Фамилия жителя", null=True)
     address = models.CharField(max_length=100, verbose_name="Точный адрес", null=True)
-    issue_date = models.DateTimeField(auto_now_add=True, verbose_name="Дата выдачи")
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Выдано",
-                                   limit_choices_to={"role": "MANAGER"}, blank=True)
+    manager = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Выдано",
+                                limit_choices_to={"role": "MANAGER"}, blank=True, null=True)
+    created_date = models.DateField(auto_now_add=True, verbose_name="Дата выдачи", null=True)
 
     class Meta:
         verbose_name = "Справка о местожительстве"
         verbose_name_plural = "Справки о местожительстве"
 
     def __str__(self):
-        return f"Справка для {self.resident_surname}"
+        return f"Справка для {self.owner_name}"
 
 
-class ResidentHistory(models.Model):
-    flat = models.ForeignKey(Flat, on_delete=models.CASCADE, verbose_name="Квартира")
-    resident_surname = models.CharField(max_length=100, verbose_name="Фамилия жителя")
-    start_date = models.DateField(verbose_name="Дата начала проживания")
-    end_date = models.DateField(null=True, blank=True, verbose_name="Дата окончания проживания")
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Владелец на момент проживания")
-
-    class Meta:
-        verbose_name = "История жителей квартиры"
-        verbose_name_plural = "История жителей квартир"
-
-    def __str__(self):
-        return f"{self.resident_surname} в квартире {self.flat}"
+# class ResidentHistory(models.Model):
+#     flat = models.ForeignKey(Flat, on_delete=models.CASCADE, verbose_name="Квартира")
+#     resident_surname = models.CharField(max_length=100, verbose_name="Фамилия жителя")
+#     start_date = models.DateField(verbose_name="Дата начала проживания")
+#     end_date = models.DateField(null=True, blank=True, verbose_name="Дата окончания проживания")
+#     owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Владелец на момент проживания")
+#
+#     class Meta:
+#         verbose_name = "История жителей квартиры"
+#         verbose_name_plural = "История жителей квартир"
+#
+#     def __str__(self):
+#         return f"{self.resident_surname} в квартире {self.flat}"

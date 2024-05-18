@@ -118,3 +118,8 @@ class VotesListView(APIView):
         votes = Votes.objects.filter(vote_new_id=vote_id)
         serializer = VotesSerializer(votes, many=True)
         return Response(serializer.data)
+
+
+class ApartmentHistoryViewSet(viewsets.ModelViewSet):
+    queryset = ApartmentHistory.objects.all()
+    serializer_class = ApartmentHistorySerializer

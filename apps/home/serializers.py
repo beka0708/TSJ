@@ -58,3 +58,9 @@ class RequestVoteSerializers(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class ApartmentHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApartmentHistory
+        fields = '__all__'
+
+

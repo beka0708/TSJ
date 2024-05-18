@@ -50,13 +50,14 @@ class FlatOwner(models.Model):
     tsj = models.ForeignKey(
         TSJ, on_delete=models.CASCADE, null=True, verbose_name="ТСЖ"
     )
-    user = models.OneToOneField(
+    user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         verbose_name="Владелец",
-        limit_choices_to={"role": "OWNER"},
+        limit_choices_to={"role": "OWNER"}, null=True
     )
     flat = models.ForeignKey("Flat", on_delete=models.CASCADE, verbose_name="Квартира")
+    created_date = models.DateField(auto_now_add=True, null=True)
 
     class Meta:
         verbose_name = "Владельцы"
@@ -80,6 +81,7 @@ class FlatTenant(models.Model):
     owner = models.ForeignKey(
         "FlatOwner", models.CASCADE, null=True, verbose_name="Владелец квартиры"
     )
+    created_date = models.DateField(auto_now_add=True, null=True)
 
     class Meta:
         verbose_name = "Квартирант"
@@ -104,6 +106,23 @@ class Flat(models.Model):
             if self.house
             else "No house assigned"
         )
+
+
+class ApartmentHistory(models.Model):
+    flat = models.ForeignKey(Flat, on_delete=models.CASCADE, verbose_name="Квартира")
+    owner = models.ForeignKey(FlatOwner, on_delete=models.CASCADE, related_name='user_history',
+                              null=True, verbose_name="Владелец")
+    tenant = models.ManyToManyField(FlatTenant, related_name='resident_history',
+                                    blank=True, verbose_name="Арендатор")
+    change_date = models.DateField(verbose_name="Дата создания")
+    description = models.TextField(verbose_name="Информация")
+
+    def __str__(self):
+        return self.description
+
+    class Meta:
+        verbose_name = "История квартир"
+        verbose_name_plural = "История квартиры"
 
 
 TYPE = {"Новости": "Новости", "Объявления": "Объявления"}
@@ -140,8 +159,8 @@ class Vote(models.Model):
     description = CKEditor5Field(verbose_name="Описание")
     created_date = models.DateTimeField(auto_now_add=True)
     deadline = models.DateTimeField(verbose_name="Конец голосование")
-    yes_count = models.IntegerField(default=0, verbose_name='количество ответов "за')
-    no_count = models.IntegerField(default=0, verbose_name='количество ответов "нет')
+    yes_count = models.IntegerField(default=0, verbose_name='Количество ответов "за')
+    no_count = models.IntegerField(default=0, verbose_name='Количество ответов "нет')
 
     class Meta:
         verbose_name = "Голосование"

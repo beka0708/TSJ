@@ -1,6 +1,6 @@
 from django.contrib.auth import password_validation
 from rest_framework import serializers
-from .models import Profile, Request, ResidentHistory, ResidenceCertificate
+from .models import Profile, Request, ResidenceCertificate
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -43,6 +43,17 @@ class ChangePasswordSerializer(serializers.Serializer):
         return data
 
 
+class ChangeSendPasswordSerializer(serializers.Serializer):
+    verification_code = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+    confirm_new_password = serializers.CharField(required=True)
+
+    def validate(self, data):
+        if data['new_password'] != data['confirm_new_password']:
+            raise serializers.ValidationError({"confirm_new_password": "Новые пароли не совпадают."})
+        return data
+
+
 class RequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Request
@@ -53,9 +64,3 @@ class ResidenceCertificateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ResidenceCertificate
         fields = ['id', 'owner_surname', 'resident_surname', 'address', 'issue_date']
-
-
-class ResidentHistorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ResidentHistory
-        fields = ['id', 'flat', 'resident_surname', 'start_date', 'end_date', 'owner']
