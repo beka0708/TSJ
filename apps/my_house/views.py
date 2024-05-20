@@ -1,14 +1,23 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
-
-from apps.home.models import Request_Vote_News
+from rest_framework.response import Response
+from django.contrib.auth import get_user_model
+from rest_framework.decorators import action
+from django.utils import timezone
+from rest_framework.views import APIView
+import xml.etree.ElementTree as ET
+from apps.home.models import Request_Vote_News, Flat
 from apps.home.serializers import RequestVoteSerializers
-from .models import DomKom, Camera, Receipts, HelpInfo, Payment, PaymentType, Debt
+from .models import DomKom, Camera, HelpInfo, PaymentType, Debt, Payment
+from .payment_utils import FreedomPay
 from .serializers import (
     DomKomSerializers, CameraSerializers,
-    ReceiptsSerializers, HelpInfoSerializers, PaymentSerializer,
-    PaymentTypeSerializer, DebtSerializer
+    HelpInfoSerializers, PaymentSerializer,
+    DebtSerializer, PaymentTypeSerializer, CreatePaymentSerializer
 )
+
+User = get_user_model()
+# freedom_pay = FreedomPay()
 
 
 class DomKomViewSet(viewsets.ModelViewSet):
@@ -36,23 +45,9 @@ class CameraViewSet(viewsets.ModelViewSet):
     serializer_class = CameraSerializers
 
 
-class ReceiptsViewSet(viewsets.ModelViewSet):
-    serializer_class = ReceiptsSerializers
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        return Receipts.objects.filter(user=user)
-
-
 class HelpInfoViewSet(viewsets.ModelViewSet):
     queryset = HelpInfo.objects.all()
     serializer_class = HelpInfoSerializers
-
-
-class PaymentViewSet(viewsets.ModelViewSet):
-    queryset = Payment.objects.all()
-    serializer_class = PaymentSerializer
 
 
 class PaymentTypeViewSet(viewsets.ModelViewSet):
@@ -63,3 +58,48 @@ class PaymentTypeViewSet(viewsets.ModelViewSet):
 class DebtViewSet(viewsets.ModelViewSet):
     queryset = Debt.objects.all()
     serializer_class = DebtSerializer
+
+
+class PaymentAPI(APIView):
+    payment_pay = FreedomPay()
+    serializer = CreatePaymentSerializer
+
+    def get(self, request):
+        user = request.user
+        payments = Payment.objects.filter(user=user)
+        serializer = PaymentSerializer(payments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        data = request.data
+        serializer = self.serializer(data=data)
+        if serializer.is_valid():
+            payment_data = serializer.save()
+
+            response_pay = self.payment_pay.init_payment_online(
+                amount=payment_data.amount,
+                order_id=payment_data.id,
+                user_id=payment_data.user.id,
+                description=payment_data.payment_type.name
+            )
+
+            root = ET.fromstring(response_pay.text)
+            pg_redirect_url = root.find('pg_redirect_url').text
+            return Response({'redirect': pg_redirect_url}, status=200)
+
+        return Response({"error": "Требуются данные пользователя об платеже"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PaymentStatusAPIView(APIView):
+    payment_pay = FreedomPay()
+
+    def get(self, request, order_id):
+        try:
+            payment = Payment.objects.get(id=order_id)
+        except Payment.DoesNotExist:
+            return Response({'error': 'Order ID does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+        response_status = self.payment_pay.get_payment_status_by_order_id(payment.id)
+        status_pay = response_status.find('pg_status').text
+        print(response_status.text)
+        return Response({'status': status_pay}, status=200)

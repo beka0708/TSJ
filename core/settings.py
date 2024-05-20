@@ -17,9 +17,15 @@ NIKITA_SENDER = config("NIKITA_SENDER")
 NIKITA_TEST = config("NIKITA_TEST")
 SECRET_KEY_SMS = config("SECRET_KEY_SMS")
 
+MERCHANT_ID = config("MERCHANT_ID")
+PAY_SECRET_KEY = config("PAY_SECRET_KEY")
+PG_SUCCESS_URL = config("PG_SUCCESS_URL")
+PG_FAILURE_URL = config("PG_FAILURE_URL")
+PG_BACK_LINK = config("PG_BACK_LINK")
+
 AUTH_USER_MODEL = "user.CustomUser"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 MY_APPS = ["apps.chat", "apps.home", "apps.my_house", "apps.user", "apps.userprofile"]
 
@@ -29,10 +35,12 @@ THIRD_PARTY_APPS = [
     "phonenumber_field",
     "django_ckeditor_5",
     "reportlab",
+    "channels",
 ]
 
 INSTALLED_APPS = (
         [
+            "daphne",
             "jazzmin",
             "django.contrib.admin",
             "django.contrib.auth",
@@ -72,7 +80,19 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "core.wsgi.application"
+
+ASGI_APPLICATION = 'core.asgi.application'
+WSGI_APPLICATION = 'core.wsgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
+
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases

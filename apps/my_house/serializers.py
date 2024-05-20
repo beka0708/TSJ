@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 
 from .models import *
@@ -15,31 +16,60 @@ class CameraSerializers(serializers.ModelSerializer):
         fields = ('id', 'url')
 
 
-class ReceiptsSerializers(serializers.ModelSerializer):
-    class Meta:
-        model = Receipts
-        fields = ('id', 'title', 'cost', 'status', 'deadline')
-
-
 class HelpInfoSerializers(serializers.ModelSerializer):
     class Meta:
         model = HelpInfo
         fields = ('id', 'tsj', 'title', 'url', 'number')
 
 
-class PaymentSerializer(serializers.ModelSerializer):
+class DebtSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Payment
+        model = Debt
         fields = '__all__'
 
 
 class PaymentTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = PaymentType
-        fields = '__all__'
+        fields = ['id', 'name', 'amount', 'is_recurring', 'period']
 
 
-class DebtSerializer(serializers.ModelSerializer):
+class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Debt
-        fields = '__all__'
+        model = Payment
+        fields = ['id', 'user', 'flat', 'payment_type', 'amount', 'status', 'created_at']
+
+
+class CreatePaymentSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+    flat_id = serializers.IntegerField()
+    payment_type_id = serializers.IntegerField()
+    amount = serializers.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        model = Payment
+        fields = ['user_id', 'flat_id', 'payment_type_id', 'amount']
+
+    def create(self, validated_data):
+        user = User.objects.get(id=validated_data['user_id'])
+        flat = Flat.objects.get(id=validated_data['flat_id'])
+        payment_type = PaymentType.objects.get(id=validated_data['payment_type_id'])
+        payment = Payment.objects.create(
+            user=user,
+            flat=flat,
+            payment_type=payment_type,
+            amount=validated_data['amount'],
+            status='pending',
+            created_at=timezone.now()
+        )
+        return payment
+
+
+class PaymentStatusSerializer(serializers.Serializer):
+    payment_id = serializers.IntegerField()
+
+
+class PayoutSerializer(serializers.Serializer):
+    amount = serializers.DecimalField(max_digits=10, decimal_places=2)
+    order_id = serializers.IntegerField()
+    description = serializers.CharField(max_length=255)

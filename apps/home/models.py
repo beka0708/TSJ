@@ -79,7 +79,7 @@ class FlatTenant(models.Model):
     )
     flat = models.ForeignKey("Flat", on_delete=models.CASCADE, verbose_name="Квартира")
     owner = models.ForeignKey(
-        "FlatOwner", models.CASCADE, null=True, verbose_name="Владелец квартиры"
+        "FlatOwner", on_delete=models.CASCADE, null=True, verbose_name="Владелец квартиры"
     )
     created_date = models.DateField(auto_now_add=True, null=True)
 
