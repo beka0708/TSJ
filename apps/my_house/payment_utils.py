@@ -204,10 +204,10 @@ class FreedomPay:
         :param order_id: ID платежа.
         :return: XML-ответ от платежной системы.
         """
-        url = "https://api.paybox.money/get_status2.php"
+        url = "https://api.paybox.money/get_status3.php"
         params = {
             'pg_order_id': order_id
         }
-        response = self.send_request(url, params, 'get_status2.php')
+        response = self.send_request(url, params, 'get_status3.php')
         response_xml = ET.fromstring(response.content.decode())
         return response_xml

@@ -100,6 +100,14 @@ class PaymentStatusAPIView(APIView):
             return Response({'error': 'Order ID does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
         response_status = self.payment_pay.get_payment_status_by_order_id(payment.id)
-        status_pay = response_status.find('pg_status').text
-        print(response_status.text)
-        return Response({'status': status_pay}, status=200)
+
+        # Debugging: Output the full response for debugging purposes
+        print(ET.tostring(response_status, encoding='utf8').decode('utf8'))
+
+        # Check if 'pg_status' element exists
+        status_element = response_status.find('pg_status')
+        if status_element is None:
+            return Response({'error': 'Invalid response from payment gateway', 'response': ET.tostring(response_status, encoding='utf8').decode('utf8')}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        status_pay = status_element.text
+        return Response({'status': status_pay, 'full_response': ET.tostring(response_status, encoding='utf8').decode('utf8')}, status=200)
