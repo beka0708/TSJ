@@ -5,10 +5,9 @@ from .views import (
     FlatOwnerViewSet,
     FlatTenantViewSet,
     FlatViewSet,
-    NewsOwnerViewSet,
     VoteViewSet,
     VotesListView,
-    RequestVoteViewSet, ApartmentHistoryViewSet,
+    RequestVoteViewSet, ApartmentHistoryViewSet, ViewRecordViewSet, NewsViewSet,
 )
 
 router = DefaultRouter()
@@ -16,8 +15,9 @@ router.register("house", HouseViewSet)
 router.register("flat_owners", FlatOwnerViewSet)
 router.register("flat_tenants", FlatTenantViewSet)
 router.register("flats", FlatViewSet)
-router.register("news_owners", NewsOwnerViewSet)
-router.register(r"votes", VoteViewSet)
+router.register(r"votes", VoteViewSet)  # голосование
+router.register(r'view-records', ViewRecordViewSet, basename='view-record')  # все просмотры
+router.register(r'news', NewsViewSet, basename='news')
 router.register(r"request_votes", RequestVoteViewSet)
 router.register(r'apartment_history', ApartmentHistoryViewSet, basename="flat_history")
 

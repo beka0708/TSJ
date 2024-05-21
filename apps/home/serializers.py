@@ -26,12 +26,21 @@ class FlatSerializers(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class ApartmentHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApartmentHistory
+        fields = '__all__'
+
+###################################################################################################
+
+
 class NewsOwnerSerializers(serializers.ModelSerializer):
     description = CKEditor5Field()
 
     class Meta:
         model = News
         fields = "__all__"
+        read_only_fields = ['view_count', ]
 
 
 class VoteSerializer(serializers.ModelSerializer):
@@ -58,9 +67,12 @@ class RequestVoteSerializers(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class ApartmentHistorySerializer(serializers.ModelSerializer):
+class ViewRecordSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField()
+
     class Meta:
-        model = ApartmentHistory
-        fields = '__all__'
+        model = ViewRecord
+        fields = ['user', 'content_type', 'content_id', 'viewed_at']
+
 
 

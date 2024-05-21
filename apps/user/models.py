@@ -107,3 +107,24 @@ class DeviceToken(models.Model):
 
     class Meta:
         verbose_name = "token-device"
+# {
+#     "email":
+#         "money@gmal.com",
+#     "phone_number":
+#         "+996700777776",
+#     "name":
+#         "Lisa ",
+#     "password":
+#         "money$$$",
+#     "confirm_password":
+#         "money$$$",
+#     "address":
+#         "Земля, тоже земля, 1, 1"
+# }
+
+# {
+#     "phone_number":
+#         "+996700777776",
+#     "password":
+#         "money$$$"
+# }

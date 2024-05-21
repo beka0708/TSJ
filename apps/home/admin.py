@@ -1,6 +1,5 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-from django.utils.translation import gettext_lazy as _
 from .models import (
     TSJ,
     House,
@@ -9,7 +8,9 @@ from .models import (
     Flat,
     News,
     Vote,
-    Request_Vote_News, ApartmentHistory,
+    Request_Vote_News,
+    ApartmentHistory,
+    ViewRecord  # Добавляем новую модель
 )
 
 User = get_user_model()
@@ -69,18 +70,18 @@ class FlatTenantAdmin(admin.ModelAdmin):
 
 @admin.register(News)
 class NewsAdmin(admin.ModelAdmin):
-    list_display = ("tsj", "type", "title", "created_date", "update_date")
+    list_display = ("tsj", "type", "title", "created_date", "update_date", "view_count")
     search_fields = ("tsj__name", "title")
     list_filter = ("tsj", "type")
-    readonly_fields = ("created_date", "update_date")
+    readonly_fields = ("created_date", "update_date", "view_count")
 
 
 @admin.register(Vote)
 class VoteAdmin(admin.ModelAdmin):
-    list_display = ("title", "created_date", "deadline")
-    # search_fields = ('tsj__name', 'title')
-    # list_filter = ('tsj',)
-    # readonly_fields = ('created_date', 'end_date')
+    list_display = ("title", "created_date", "deadline", "view_count")
+    search_fields = ("title",)
+    list_filter = ("tjs",)
+    readonly_fields = ("created_date", "view_count")
 
 
 @admin.register(Request_Vote_News)
@@ -100,3 +101,13 @@ class ApartmentHistoryAdmin(admin.ModelAdmin):
 
 admin.site.register(ApartmentHistory, ApartmentHistoryAdmin)
 
+
+@admin.register(ViewRecord)
+class ViewRecordAdmin(admin.ModelAdmin):
+    list_display = ('get_user', 'content_type', 'viewed_at')
+    list_filter = ('content_type', 'viewed_at')
+    search_fields = ('user__name', 'content_type', 'content_id')
+
+    def get_user(self, obj):
+        return obj.user.name
+    get_user.short_description = 'Пользователь'

@@ -1,18 +1,25 @@
-from django.utils import timezone
-from rest_framework import status
-from rest_framework import viewsets
+from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from django.utils import timezone
 from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly, IsManagerOrReadOnly
-from .models import House, FlatOwner, FlatTenant, Flat, News
-from .serializers import *
 from .serializers import (
     HouseSerializers,
     FlatOwnerSerializers,
     FlatTenantSerializers,
     FlatSerializers,
     NewsOwnerSerializers,
+    RequestVoteSerializers,
+    VoteSerializer,
+    ApartmentHistorySerializer,
+    VotesSerializer,
+    ViewRecordSerializer,
 )
+from ..user.serializers import UserSerializer
+from .models import House, FlatOwner, FlatTenant, Flat, Request_Vote_News, Vote, News, ViewRecord, ApartmentHistory, \
+    Votes, User
 
 
 class HouseViewSet(viewsets.ModelViewSet):
@@ -29,7 +36,6 @@ class FlatOwnerViewSet(viewsets.ModelViewSet):
 
 class FlatTenantViewSet(viewsets.ModelViewSet):
     queryset = FlatTenant.objects.all()
-
     serializer_class = FlatTenantSerializers
     permission_classes = [IsOwnerOrReadOnly]
 
@@ -37,12 +43,6 @@ class FlatTenantViewSet(viewsets.ModelViewSet):
 class FlatViewSet(viewsets.ModelViewSet):
     queryset = Flat.objects.all()
     serializer_class = FlatSerializers
-    permission_classes = [IsManagerOrReadOnly]
-
-
-class NewsOwnerViewSet(viewsets.ModelViewSet):
-    queryset = News.objects.all()
-    serializer_class = NewsOwnerSerializers
     permission_classes = [IsManagerOrReadOnly]
 
 
@@ -55,61 +55,32 @@ class RequestVoteViewSet(viewsets.ModelViewSet):
 class VoteViewSet(viewsets.ModelViewSet):
     queryset = Vote.objects.all()
     serializer_class = VoteSerializer
+    permission_classes = [IsManagerOrReadOnly]
 
-    def update(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return Response(
-                {"error": "Необходима аутентификация."},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
-
+    def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-
-        # Check if the deadline has passed
-        if instance.deadline <= timezone.now():
-            return Response(
-                {"error": "Голосование уже завершено."},
-                status=status.HTTP_400_BAD_REQUEST,
+        if request.user.is_authenticated:
+            view_record, created = ViewRecord.objects.get_or_create(
+                user=request.user,
+                content_type='vote',
+                content_id=instance.id,
+                defaults={'viewed_at': timezone.now()}
             )
+            if created:
+                instance.view_count += 1
+                instance.save()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
-        # проверка голосов пользователей
-        user_has_voted = instance.votes.filter(user=request.user).exists()
-        if user_has_voted:
-            return Response(
-                {"error": "Вы уже проголосовали."}, status=status.HTTP_400_BAD_REQUEST
-            )
 
-        if "vote" not in request.data:
-            return Response(
-                {
-                    "error": "Пожалуйста, отправьте свой голос в формате JSON. "
-                    "Например: {'vote': 'за'} или {'vote': 'против'}."
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+class ApartmentHistoryViewSet(viewsets.ModelViewSet):
+    queryset = ApartmentHistory.objects.all()
+    serializer_class = ApartmentHistorySerializer
 
-        if "vote" in request.data:
-            vote_value = request.data["vote"]
-            if vote_value == "за":
-                instance.yes_count += 1
-            elif vote_value == "против":
-                instance.no_count += 1
-            instance.save()
 
-            # чтобы не голосовали повторно
-            instance.votes.create(user=request.user, vote=vote_value)
-
-        total_votes = instance.yes_count + instance.no_count
-        if total_votes > 0:
-            percentage_yes = (instance.yes_count / total_votes) * 100
-            percentage_no = (instance.no_count / total_votes) * 100
-        else:
-            percentage_yes = 0
-            percentage_no = 0
-
-        return Response(
-            {"percentage_yes": percentage_yes, "percentage_no": percentage_no}
-        )
+class IsManager(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.role == 'MANAGER'
 
 
 class VotesListView(APIView):
@@ -120,6 +91,51 @@ class VotesListView(APIView):
         return Response(serializer.data)
 
 
-class ApartmentHistoryViewSet(viewsets.ModelViewSet):
-    queryset = ApartmentHistory.objects.all()
-    serializer_class = ApartmentHistorySerializer
+class NewsViewSet(viewsets.ModelViewSet):
+    queryset = News.objects.all()
+    serializer_class = NewsOwnerSerializers
+    permission_classes = [IsManagerOrReadOnly]
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if request.user.is_authenticated:
+            view_record, created = ViewRecord.objects.get_or_create(
+                user=request.user,
+                content_type='news',
+                content_id=instance.id,
+                defaults={'viewed_at': timezone.now()}
+            )
+            if created:
+                instance.view_count += 1
+                instance.save()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
+    def viewers(self, request, pk=None):
+        news = self.get_object()
+        viewed_users = User.objects.filter(viewrecord__content_type='news', viewrecord__content_id=news.id)
+        serializer = UserSerializer(viewed_users, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
+    def non_viewers(self, request, pk=None):
+        news = self.get_object()
+        all_users = User.objects.all()
+        viewed_users = User.objects.filter(viewrecord__content_type='news', viewrecord__content_id=news.id)
+        non_viewed_users = all_users.exclude(id__in=viewed_users)
+        serializer = UserSerializer(non_viewed_users, many=True)
+        return Response(serializer.data)
+
+
+class ViewRecordViewSet(viewsets.ModelViewSet):
+    queryset = ViewRecord.objects.all()
+    serializer_class = ViewRecordSerializer
+    permission_classes = [IsManager]
+
+    def get_queryset(self):
+        content_type = self.request.query_params.get('content_type', None)
+        queryset = ViewRecord.objects.all()
+        if content_type:
+            queryset = queryset.filter(content_type=content_type)
+        return queryset

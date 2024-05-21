@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
-from phonenumber_field.modelfields import PhoneNumberField
+from django.utils import timezone
 from django_ckeditor_5.fields import CKEditor5Field
 
 User = get_user_model()
@@ -134,6 +134,7 @@ class News(models.Model):
     title = models.CharField(max_length=200, verbose_name="Заголовок")
     description = CKEditor5Field(verbose_name="Описание")
     link = models.URLField(verbose_name="Ссылка на источник")
+    view_count = models.PositiveIntegerField(default=0, verbose_name='количество посмотревших')  # Поле для хранения количества просмотров
     created_date = models.DateTimeField(
         auto_now_add=True, null=True, verbose_name="Дата создания"
     )
@@ -157,6 +158,7 @@ class Vote(models.Model):
     tjs = models.ForeignKey(TSJ, on_delete=models.CASCADE, verbose_name="Выберите ТСЖ")
     title = models.CharField(max_length=100, verbose_name="Заголовок")
     description = CKEditor5Field(verbose_name="Описание")
+    view_count = models.PositiveIntegerField(default=0, verbose_name='количество посмотревших')  # Поле для хранения количества просмотров
     created_date = models.DateTimeField(auto_now_add=True)
     deadline = models.DateTimeField(verbose_name="Конец голосование")
     yes_count = models.IntegerField(default=0, verbose_name='Количество ответов "за')
@@ -199,6 +201,7 @@ class Request_Vote_News(models.Model):
     link = models.URLField(
         blank=True, verbose_name="Ссылка на источник", help_text="для новостей"
     )
+    view_count = models.PositiveIntegerField(default=0, verbose_name='количество посмотревших')  # Поле для хранения количества просмотров
     deadline_date = models.DateTimeField(
         blank=True, verbose_name="Срок голосования", help_text="для голосование"
     )
@@ -219,6 +222,23 @@ class Request_Vote_News(models.Model):
 
     def __str__(self):
         return self.title
+
+#######################################################################################
+
+
+class ViewRecord(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
+    content_type = models.CharField(max_length=50, verbose_name="Тип контента")
+    content_id = models.PositiveIntegerField(verbose_name="ID контента")
+    viewed_at = models.DateTimeField(default=timezone.now, verbose_name="Дата просмотра")
+
+    class Meta:
+        verbose_name = "Запись о просмотре"
+        verbose_name_plural = "Записи о просмотре"
+        unique_together = ('user', 'content_type', 'content_id')
+
+    def __str__(self):
+        return f"{self.user.name} - {self.content_type} - {self.viewed_at}"
 
 
 # class BaseVoting(models.Model):
