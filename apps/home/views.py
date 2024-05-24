@@ -1,3 +1,4 @@
+from django.shortcuts import render
 from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -20,7 +21,19 @@ from .serializers import (
 from ..user.serializers import UserSerializer
 from .models import House, FlatOwner, FlatTenant, Flat, Request_Vote_News, Vote, News, ViewRecord, ApartmentHistory, \
     Votes, User
+from django.utils.translation import get_language
+from .models import TSJ
 
+
+# def tsj_detail(request, tsj_id):
+#     current_language = get_language()
+#     tsj_instance = TSJ.objects.get(id=tsj_id)
+#     context = {
+#         'tsj': tsj_instance,
+#         'current_language': current_language,
+#     }
+#     return render(request, 'tsj_detail.html', context)
+#
 
 class HouseViewSet(viewsets.ModelViewSet):
     queryset = House.objects.all()

@@ -35,7 +35,7 @@ class ApartmentHistorySerializer(serializers.ModelSerializer):
 
 
 class NewsOwnerSerializers(serializers.ModelSerializer):
-    description = CKEditor5Field()
+    user = serializers.StringRelatedField()
 
     class Meta:
         model = News
@@ -44,7 +44,7 @@ class NewsOwnerSerializers(serializers.ModelSerializer):
 
 
 class VoteSerializer(serializers.ModelSerializer):
-    description = CKEditor5Field()
+    user = serializers.StringRelatedField()
 
     class Meta:
         model = Vote
@@ -60,7 +60,7 @@ class VotesSerializer(serializers.ModelSerializer):
 
 
 class RequestVoteSerializers(serializers.ModelSerializer):
-    description = CKEditor5Field()
+    description = CKEditor5Field(verbose_name='описание')
 
     class Meta:
         model = Request_Vote_News

@@ -7,3 +7,11 @@ class HomeConfig(AppConfig):
 
     def ready(self):
         import apps.home.signals
+
+from django.apps import AppConfig
+
+class YourAppConfig(AppConfig):
+    name = 'your_app'
+
+    def ready(self):
+        import your_app.translation  # добавьте этот импорт

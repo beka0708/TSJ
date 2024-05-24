@@ -41,6 +41,7 @@ THIRD_PARTY_APPS = [
     "phonenumber_field",
     "django_ckeditor_5",
     "reportlab",
+    'modeltranslation',
 ]
 
 INSTALLED_APPS = (
@@ -412,7 +413,7 @@ JAZZMIN_SETTINGS = {
     },
 }
 
-LANGUAGE_CODE = "ru"
+LANGUAGE_CODE = "ru-Ru"
 
 TIME_ZONE = "Asia/Bishkek"
 
@@ -465,3 +466,16 @@ SIMPLE_JWT = {
 TWILIO_ACCOUNT_SID = 'ACcb9b1bae7ecd37c4665782f7a53bc019'
 TWILIO_AUTH_TOKEN = '60a4ffd5c7623a009c3729923004c51f'
 TWILIO_PHONE_NUMBER = '+13343263917'
+
+
+gettext = lambda s: s
+LANGUAGES = (
+    ('ru', gettext('Russian')),
+    ('en', gettext('English')),
+    ('ky', gettext('Kyrgyz')),
+)
+
+
+MODELTRANSLATION_DEFAULT_LANGUAGE = 'ru'
+MODELTRANSLATION_LANGUAGES = ('ru', 'en', 'ky')
+MODELTRANSLATION_TRANSLATION_REGISTRY = 'TSJ.apps.home.translation'
