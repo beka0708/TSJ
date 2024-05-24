@@ -7,7 +7,7 @@ from .models import *
 class DomKomSerializers(serializers.ModelSerializer):
     class Meta:
         model = DomKom
-        fields = ('id', 'title', 'description', 'url', 'image', 'info')
+        fields = ('id', 'title', 'description', 'url', 'info')
 
 
 class CameraSerializers(serializers.ModelSerializer):
