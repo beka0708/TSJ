@@ -219,7 +219,6 @@ $RECYCLE.BIN/
 
 # Specific Django Project Folders
 .idea
-static
 venv
 .env
 #**/migrations/*
