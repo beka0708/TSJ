@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Room - {{ room.title }}</title>
+</head>
+<body>
+    <h1>Room: {{ room.title }}</h1>
+    <div id="chat-log">
+        {% for message in messages %}
+            <div><strong>{{ message.user.name }}:</strong> {{ message.content }}
+                <span style="font-size: smaller; color: gray;"> ({{ message.timestamp|date:"m-d H:i" }})</span>
+            </div>
+        {% endfor %}
+    </div>
+    {% if not room.is_archived %}
+        <form id="chat-form">
+            {% csrf_token %}
+            <input type="text" id="chat-message-input" autocomplete="off"/>
+            <button type="submit">Send</button>
+        </form>
+    {% else %}
+        <p>This room is archived. You can only read messages.</p>
+    {% endif %}
+    <script>
+        const roomName = "{{ room.title }}";
+        const chatSocket = new WebSocket(
+            'ws://' + window.location.host + '/ws/chat/' + roomName + '/'
+        );
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            const chatLog = document.getElementById('chat-log');
+            chatLog.innerHTML += (
+                '<div><strong>' + data.username + ':</strong> ' + data.message +
+                '<span style="font-size: smaller; color: gray;"> (' + data.timestamp + ')</span></div>'
+            );
+        };
+
+        {% if not room.is_archived %}
+            document.getElementById('chat-form').onsubmit = function(e) {
+                e.preventDefault();
+                const messageInputDom = document.getElementById('chat-message-input');
+                const message = messageInputDom.value;
+                chatSocket.send(JSON.stringify({
+                    'message': message
+                }));
+                messageInputDom.value = '';
+            };
+        {% endif %}
+    </script>
+</body>
+</html>

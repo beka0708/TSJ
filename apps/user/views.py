@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import status, generics
+from rest_framework.authentication import BasicAuthentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
@@ -9,12 +10,14 @@ from .models import DeviceToken
 from .permissions import AllowAny
 from .serializers import UserSerializer, DeviceTokenSerializer
 from .utils import SendSMS
+from ..my_house.views import CsrfExemptSessionAuthentication
 
 CustomUser = get_user_model()
 
 
 class UserRegistrationView(APIView):
     permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication,)
 
     def post(self, request):
         serializer = UserSerializer(data=request.data)
@@ -23,6 +26,8 @@ class UserRegistrationView(APIView):
             # Отправляем SMS с кодом подтверждения
             # SendSMS.send_confirmation_sms(user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            print("Validation errors:", serializer.errors)  # Выводим ошибки валидации для отладки
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

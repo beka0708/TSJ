@@ -1,16 +1,27 @@
-from rest_framework import generics
+from rest_framework import generics, filters
 from .models import Room, Message
+from django_filters.rest_framework import DjangoFilterBackend
 from apps.chat.serializers import RoomSerializers, MessageSerializers
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
 
-def index(request):
-    return render(request, 'chat.html')
+def room_list(request):
+    rooms = Room.objects.all()
+    return render(request, 'room_list.html', {'rooms': rooms})
+
+
+def chat_room(request, room_name):
+    room = get_object_or_404(Room, title=room_name)
+    messages = Message.objects.filter(room=room).order_by('timestamp')
+    return render(request, 'chat_room.html', {'room': room, 'messages': messages})
 
 
 class ChatListCreateView(generics.ListCreateAPIView):
     queryset = Room.objects.all().order_by('-created_at')
     serializer_class = RoomSerializers
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ['title', 'description']
+    filterset_fields = ['is_archived', 'has_voting']
 
 
 class ChatDetailView(generics.RetrieveUpdateDestroyAPIView):

@@ -77,7 +77,7 @@ class FreedomPay:
         return response
 
     def init_payment_online(self, amount, order_id, user_id, description):
-        pg_result_url = reverse_lazy('payment_result')
+        pg_result_url = f"http://113.30.190.31:8001/"
         url = f"https://api.paybox.money/init_payment.php"
         params = {
             'pg_amount': str(amount),
@@ -85,7 +85,7 @@ class FreedomPay:
             'pg_user_id': str(user_id),
             'pg_description': description,
             'pg_currency': 'KGS',
-            # 'pg_result_url': str(pg_result_url),
+            'pg_result_url': str(pg_result_url),
             # 'pg_success_url': self.pg_success_url,
             # 'pg_failure_url': self.pg_failure_url,
             'pg_auto_clearing': 1

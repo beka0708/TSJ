@@ -1,6 +1,8 @@
 from django.utils import timezone
 from rest_framework import status
 from rest_framework import viewsets
+from rest_framework.authentication import BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly, IsManagerOrReadOnly
@@ -11,8 +13,9 @@ from .serializers import (
     FlatOwnerSerializers,
     FlatTenantSerializers,
     FlatSerializers,
-    NewsOwnerSerializers,
+    NewsSerializer
 )
+from ..my_house.views import CsrfExemptSessionAuthentication
 
 
 class HouseViewSet(viewsets.ModelViewSet):
@@ -39,10 +42,20 @@ class FlatViewSet(viewsets.ModelViewSet):
     permission_classes = [IsManagerOrReadOnly]
 
 
-class NewsOwnerViewSet(viewsets.ModelViewSet):
+class NewsViewSet(viewsets.ModelViewSet):
     queryset = News.objects.all()
-    serializer_class = NewsOwnerSerializers
+    serializer_class = NewsSerializer
     permission_classes = [IsManagerOrReadOnly]
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        # Учет просмотра пользователем
+        if request.user.is_authenticated:
+            NewsView.objects.get_or_create(news=instance, user=request.user)
+
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
 
 class RequestVoteViewSet(viewsets.ModelViewSet):
@@ -54,6 +67,8 @@ class RequestVoteViewSet(viewsets.ModelViewSet):
 class VoteViewSet(viewsets.ModelViewSet):
     queryset = Vote.objects.all()
     serializer_class = VoteSerializer
+    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
     def update(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -78,25 +93,23 @@ class VoteViewSet(viewsets.ModelViewSet):
                 {"error": "Вы уже проголосовали."}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        if "vote" not in request.data:
+        vote_value = request.data.get('vote')
+        if vote_value not in ['за', 'против']:
             return Response(
-                {
-                    "error": "Пожалуйста, отправьте свой голос в формате JSON. "
-                    "Например: {'vote': 'за'} или {'vote': 'против'}."
-                },
+                {"error": "Пожалуйста, отправьте свой голос в формате JSON. "
+                          "Например: {'vote': 'за'} или {'vote': 'против'}."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        if "vote" in request.data:
-            vote_value = request.data["vote"]
-            if vote_value == "за":
-                instance.yes_count += 1
-            elif vote_value == "против":
-                instance.no_count += 1
-            instance.save()
+        # Обновление количества голосов
+        if vote_value == "за":
+            instance.yes_count += 1
+        elif vote_value == "против":
+            instance.no_count += 1
+        instance.save()
 
-            # чтобы не голосовали повторно
-            instance.votes.create(user=request.user, vote=vote_value)
+        # Сохранение голоса пользователя
+        VoteResult.objects.create(vote=instance, user=request.user, vote_value=vote_value)
 
         total_votes = instance.yes_count + instance.no_count
         if total_votes > 0:
@@ -110,12 +123,14 @@ class VoteViewSet(viewsets.ModelViewSet):
             {"percentage_yes": percentage_yes, "percentage_no": percentage_no}
         )
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
 
-class VotesListView(APIView):
-    def get(self, request, *args, **kwargs):
-        vote_id = kwargs.get("vote_id")
-        votes = Votes.objects.filter(vote_new_id=vote_id)
-        serializer = VotesSerializer(votes, many=True)
+        # Учет просмотра пользователем
+        if request.user.is_authenticated:
+            VoteView.objects.get_or_create(vote=instance, user=request.user)
+
+        serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
 

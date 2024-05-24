@@ -1,6 +1,10 @@
 version: '3.10'
 
 services:
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
   api:
     build: .
     command: >
@@ -13,6 +17,7 @@ services:
       - .env
     depends_on:
       - postgres
+      - redis
     volumes:
       - static_volume:/usr/src/app/back_static
       - media_volume:/usr/src/app/back_media

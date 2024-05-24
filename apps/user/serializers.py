@@ -14,6 +14,21 @@ class UserSerializer(serializers.ModelSerializer):
     is_approved = serializers.CharField(read_only=True)
     phone_number = PhoneNumberField()
 
+    def validate_address(self, value):
+        print("Validating address:", value)
+        parts = value.split(',')
+        if len(parts) != 4:
+            raise serializers.ValidationError(
+                "Адрес должен состоять из четырех частей:"
+                " город, улица, номер дома, номер квартиры, разделенных запятыми.")
+        try:
+            house_number = int(parts[2].strip())  # Номер дома
+            apartment_number = int(parts[3].strip())  # Номер квартиры
+        except ValueError:
+            raise serializers.ValidationError("Номер дома и номер квартиры должны быть числами.")
+
+        return value
+
     class Meta:
         model = CustomUser
         fields = (

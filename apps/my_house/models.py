@@ -11,7 +11,6 @@ class DomKom(models.Model):
     title = models.CharField(max_length=100, verbose_name="Заголовок")
     description = CKEditor5Field(verbose_name="Описание")
     url = models.URLField(blank=True, verbose_name="Ссылка")
-    image = models.ImageField(upload_to='media/', verbose_name="Фото")
     info = models.OneToOneField(User, on_delete=models.CASCADE,
                                 limit_choices_to={"role": "MANAGER"}, verbose_name="Информация о домкоме")
 
@@ -21,6 +20,18 @@ class DomKom(models.Model):
     class Meta:
         verbose_name = "Мой дом"
         verbose_name_plural = "Мой дом"
+
+
+class Photo(models.Model):
+    dom_kom = models.ForeignKey(DomKom, related_name='photos', on_delete=models.CASCADE, verbose_name="Дом")
+    image = models.ImageField(upload_to='media/', verbose_name="Фотография")
+
+    def __str__(self):
+        return f"{self.dom_kom.title} - {self.image.name}"
+
+    class Meta:
+        verbose_name = "Фото"
+        verbose_name_plural = "Добавить фото"
 
 
 class PaymentType(models.Model):
@@ -53,7 +64,7 @@ class Payment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
-        return f"{self.user.name} плата за квартиру {self.flat}"
+        return f"{self.user.name} плата за {self.payment_type} {self.flat}"
 
     class Meta:
         verbose_name = "Принятие платежей"

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-from django.utils.translation import gettext_lazy as _
+
 from .models import (
     TSJ,
     House,
@@ -9,7 +9,7 @@ from .models import (
     Flat,
     News,
     Vote,
-    Request_Vote_News, ApartmentHistory,
+    Request_Vote_News, ApartmentHistory, VoteResult, VoteView, NewsView,
 )
 
 User = get_user_model()
@@ -67,20 +67,53 @@ class FlatTenantAdmin(admin.ModelAdmin):
     search_fields = ("user__username",)
 
 
+class NewsViewInline(admin.TabularInline):
+    model = NewsView
+    extra = 0
+
+
 @admin.register(News)
 class NewsAdmin(admin.ModelAdmin):
-    list_display = ("tsj", "type", "title", "created_date", "update_date")
+    list_display = ("tsj", "type", "title", "created_date", "update_date", "views_count")
     search_fields = ("tsj__name", "title")
     list_filter = ("tsj", "type")
     readonly_fields = ("created_date", "update_date")
+    inlines = [NewsViewInline]
+
+    def views_count(self, obj):
+        return obj.views.count()
+    views_count.short_description = "Просмотры"
+
+
+admin.site.register(NewsView)
+
+
+class VoteResultInline(admin.TabularInline):
+    model = VoteResult
+    extra = 0
 
 
 @admin.register(Vote)
 class VoteAdmin(admin.ModelAdmin):
-    list_display = ("title", "created_date", "deadline")
-    # search_fields = ('tsj__name', 'title')
-    # list_filter = ('tsj',)
-    # readonly_fields = ('created_date', 'end_date')
+    list_display = ('title', 'tjs', 'created_date', 'deadline', 'yes_count', 'no_count', "views_count")
+    inlines = [VoteResultInline]
+
+    def views_count(self, obj):
+        return obj.views.count()
+    views_count.short_description = "Просмотры"
+
+
+@admin.register(VoteView)
+class VoteViewAdmin(admin.ModelAdmin):
+    list_display = ('vote', 'user', 'viewed_at')  # Поля для отображения в списке
+    list_filter = ('vote', 'user')  # Фильтры для списка
+    search_fields = ('vote__title', 'user__username')  # Поиск по заголовку голосования и имени пользователя
+    ordering = ['viewed_at']  # Сортировка по времени просмотра
+
+    def viewed_at(self, obj):  # Пользовательское поле для отображения времени просмотра
+        return obj.viewed_at.strftime('%Y-%m-%d %H:%M:%S')
+
+    viewed_at.short_description = 'Время просмотра'
 
 
 @admin.register(Request_Vote_News)
@@ -95,8 +128,8 @@ class ApartmentHistoryAdmin(admin.ModelAdmin):
 
     def get_tenant_names(self, obj):
         return ", ".join([tenant.user.name for tenant in obj.tenant.all()])
+
     get_tenant_names.short_description = 'Tenants'
 
 
 admin.site.register(ApartmentHistory, ApartmentHistoryAdmin)
-

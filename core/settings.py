@@ -36,6 +36,7 @@ THIRD_PARTY_APPS = [
     "django_ckeditor_5",
     "reportlab",
     "channels",
+    "drf_spectacular",
 ]
 
 INSTALLED_APPS = (
@@ -62,6 +63,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
 
 ROOT_URLCONF = "core.urls"
 TEMPLATES = [
@@ -376,7 +378,7 @@ JAZZMIN_UI_TWEAKS = {
 }
 
 JAZZMIN_SETTINGS = {
-    "site_title": "Административная панель TSJ",
+    "site_title": "TSJ",
     "site_header": "TSJ",
     "navigation_expanded": True,
     "show_ui_builder": True,
@@ -413,11 +415,6 @@ JAZZMIN_SETTINGS = {
         "django.contrib.auth.models.Group",
         "django.contrib.auth.models.User",
     ],
-    "custom_css": {
-        "all": [
-            "css/custom_admin.css",
-        ],
-    },
 }
 
 LANGUAGE_CODE = "ru"
@@ -451,7 +448,16 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.BasicAuthentication",
     ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'TSJ',
+    'DESCRIPTION': 'ready application programming Interface',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
+
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),

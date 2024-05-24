@@ -15,9 +15,16 @@ from .serializers import (
     HelpInfoSerializers, PaymentSerializer,
     DebtSerializer, PaymentTypeSerializer, CreatePaymentSerializer
 )
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 
 User = get_user_model()
 # freedom_pay = FreedomPay()
+
+
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+
+    def enforce_csrf(self, request):
+        return  # To not perform the csrf check previously happening
 
 
 class DomKomViewSet(viewsets.ModelViewSet):
@@ -63,6 +70,8 @@ class DebtViewSet(viewsets.ModelViewSet):
 class PaymentAPI(APIView):
     payment_pay = FreedomPay()
     serializer = CreatePaymentSerializer
+    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
@@ -70,9 +79,9 @@ class PaymentAPI(APIView):
         serializer = PaymentSerializer(payments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request):
-        data = request.data
-        serializer = self.serializer(data=data)
+    def post(self, request, format=None):
+        serializer = self.serializer(data=request.data)
+        # serializer = self.serializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             payment_data = serializer.save()
 
@@ -92,6 +101,7 @@ class PaymentAPI(APIView):
 
 class PaymentStatusAPIView(APIView):
     payment_pay = FreedomPay()
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, order_id):
         try:
@@ -100,14 +110,5 @@ class PaymentStatusAPIView(APIView):
             return Response({'error': 'Order ID does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
         response_status = self.payment_pay.get_payment_status_by_order_id(payment.id)
-
-        # Debugging: Output the full response for debugging purposes
-        print(ET.tostring(response_status, encoding='utf8').decode('utf8'))
-
-        # Check if 'pg_status' element exists
-        status_element = response_status.find('pg_status')
-        if status_element is None:
-            return Response({'error': 'Invalid response from payment gateway', 'response': ET.tostring(response_status, encoding='utf8').decode('utf8')}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        status_pay = status_element.text
-        return Response({'status': status_pay, 'full_response': ET.tostring(response_status, encoding='utf8').decode('utf8')}, status=200)
+        status_element = response_status.find('pg_status').text
+        return Response({'status': status_element, 'full_response': ET.tostring(response_status, encoding='utf8').decode('utf8')}, status=200)

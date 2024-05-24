@@ -1,12 +1,22 @@
 from django.contrib import admin
-from .models import DomKom, HelpInfo, Camera, \
-    PaymentType, Debt, Payment
 
-admin.site.register(DomKom)
+from .models import DomKom, HelpInfo, Camera, \
+    PaymentType, Debt, Payment, Photo
+
 admin.site.register(Camera)
 admin.site.register(Payment)
 admin.site.register(PaymentType)
 admin.site.register(Debt)
+
+
+class DomKomPhotoInline(admin.TabularInline):
+    model = Photo
+    extra = 1  # Количество дополнительных пустых форм для загрузки новых фото
+
+
+@admin.register(DomKom)
+class DomKomAdmin(admin.ModelAdmin):
+    inlines = [DomKomPhotoInline]
 
 
 @admin.register(HelpInfo)

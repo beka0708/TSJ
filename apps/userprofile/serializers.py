@@ -57,7 +57,7 @@ class ChangeSendPasswordSerializer(serializers.Serializer):
 class RequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Request
-        fields = ('id', 'name_owner', 'tsj', 'number_flat', 'name', 'email', 'number_phone', 'created_date', 'status')
+        fields = ('id', 'name_owner', 'tsj', 'number_flat', 'name', 'email', 'phone_number', 'created_date', 'status')
 
 
 class ResidenceCertificateSerializer(serializers.ModelSerializer):

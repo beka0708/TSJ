@@ -222,8 +222,8 @@ $RECYCLE.BIN/
 static
 venv
 .env
-**/migrations/*
-!**/migrations/__init__.py
+#**/migrations/*
+#!**/migrations/__init__.py
 __pycache__/
 **/__pycache__/*
 **/__pycache__/
@@ -249,5 +249,3 @@ poetry.toml
 
 # LSP config files
 pyrightconfig.json
-avatars
-font

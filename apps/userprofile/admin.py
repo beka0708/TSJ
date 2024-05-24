@@ -1,27 +1,15 @@
-from datetime import datetime
 from io import BytesIO
-
 from reportlab.lib.colors import black
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
-from reportlab.lib.pagesizes import letter
-from xhtml2pdf import pisa
-from django.conf import settings
 from django.contrib import admin
 from django.http import HttpResponse
-from django.shortcuts import redirect
-from django.template.loader import render_to_string
-from django.urls import path, reverse
 from django.contrib.auth import get_user_model
-from django.utils.html import format_html
-from django.utils.encoding import smart_str
 from apps.user.utils import SendSMS
 from apps.userprofile.models import Request, Profile, ResidenceCertificate
-from django.contrib import messages
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
-from reportlab.lib.styles import getSampleStyleSheet
 
 
 User = get_user_model()

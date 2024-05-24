@@ -26,28 +26,40 @@ class FlatSerializers(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class NewsOwnerSerializers(serializers.ModelSerializer):
+class NewsSerializer(serializers.ModelSerializer):
+    views_count = serializers.SerializerMethodField()
     description = CKEditor5Field()
 
     class Meta:
         model = News
-        fields = "__all__"
+        fields = '__all__'
+
+    def get_views_count(self, obj):
+        return obj.views.count()
 
 
 class VoteSerializer(serializers.ModelSerializer):
+    views_count = serializers.SerializerMethodField()
     description = CKEditor5Field()
 
     class Meta:
         model = Vote
         fields = "__all__"
 
+    def get_views_count(self, obj):
+        return obj.views.count()
 
-class VotesSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField()
 
+class VoteResultSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Votes
-        fields = ["user", "vote"]
+        model = VoteResult
+        fields = '__all__'
+
+
+class VoteViewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VoteView
+        fields = '__all__'
 
 
 class RequestVoteSerializers(serializers.ModelSerializer):

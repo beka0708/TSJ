@@ -1,7 +1,8 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
-
+from django.core.exceptions import ValidationError
+import re
 from apps.user.managers import CustomUserManager
 
 
@@ -34,8 +35,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         help_text="Пример: +996700777777",
         null=True,
     )
-    # phone_number = models.CharField(max_length=13, verbose_name='Номер телефона', unique=True,
-    #                                 help_text='Пример: +996700777777', null=True)
     email = models.EmailField(unique=True)
     name = models.CharField(
         max_length=100,
@@ -82,6 +81,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        super().clean()
+        # Проверяем, что имя содержит только буквы (кириллица и латиница допустимы)
+        if not re.match(r'^[а-яА-ЯёЁa-zA-Z\s]+$', self.name):
+            raise ValidationError("Имя должно содержать только буквы.")
 
     class Meta:
         verbose_name = "Аккаунт"

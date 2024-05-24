@@ -147,17 +147,24 @@ class News(models.Model):
         return self.title
 
 
-TYPE_OWNERS = {
-    "Житель": "Житель",
-    "Квартирант": "Квартирант"
-}
+class NewsView(models.Model):
+    news = models.ForeignKey(News, related_name='views', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    viewed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Просмотр новости"
+        verbose_name_plural = "Просмотры новостей"
+
+    def __str__(self):
+        return self.user.name
 
 
 class Vote(models.Model):
     tjs = models.ForeignKey(TSJ, on_delete=models.CASCADE, verbose_name="Выберите ТСЖ")
     title = models.CharField(max_length=100, verbose_name="Заголовок")
     description = CKEditor5Field(verbose_name="Описание")
-    created_date = models.DateTimeField(auto_now_add=True)
+    created_date = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
     deadline = models.DateTimeField(verbose_name="Конец голосование")
     yes_count = models.IntegerField(default=0, verbose_name='Количество ответов "за')
     no_count = models.IntegerField(default=0, verbose_name='Количество ответов "нет')
@@ -170,12 +177,30 @@ class Vote(models.Model):
         return self.title
 
 
-class Votes(models.Model):
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, limit_choices_to={"role": "OWNER"}
-    )
-    vote = models.CharField(max_length=10)
-    vote_new = models.ForeignKey(Vote, related_name="votes", on_delete=models.CASCADE)
+class VoteResult(models.Model):
+    vote = models.ForeignKey(Vote, related_name='votes', on_delete=models.CASCADE, verbose_name="Голосование")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
+    vote_value = models.CharField(max_length=10, verbose_name="Голос")  # 'за' или 'против'
+
+    class Meta:
+        verbose_name = "Результат"
+        verbose_name_plural = "Результаты"
+
+    def __str__(self):
+        return self.user.name
+
+
+class VoteView(models.Model):
+    vote = models.ForeignKey(Vote, related_name='views', on_delete=models.CASCADE, verbose_name="Голосование")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
+    viewed_at = models.DateTimeField(auto_now_add=True, verbose_name="Время просмотра")
+
+    class Meta:
+        verbose_name = "Просмотр"
+        verbose_name_plural = "Просмотры"
+
+    def __str__(self):
+        return self.user.name
 
 
 VOTING = {
@@ -220,21 +245,3 @@ class Request_Vote_News(models.Model):
     def __str__(self):
         return self.title
 
-
-# class BaseVoting(models.Model):
-#     title = models.CharField(max_length=100)
-#     description = models.TextField()
-#     vote_type = models.CharField(max_length=50, choices=[('за/против', 'за/против'), ('вариативный', 'вариативный')])
-#     tsj = models.ForeignKey(TSJ, on_delete=models.CASCADE)
-#     users_votes = models.ManyToManyField(User)
-#
-#     class Meta:
-#         abstract = True
-#
-# class AdminVoting(BaseVoting):
-#     vote_type = models.CharField(max_length=50, choices=[('за/против', 'за/против'), ('вариативный', 'вариативный')],
-#     blank=True, null=True)
-#
-# class UserVoting(BaseVoting):
-#     vote_type = models.CharField(max_length=50, choices=[('за/против', 'за/против'), ('вариативный', 'вариативный')],
-#     blank=False, null=False)

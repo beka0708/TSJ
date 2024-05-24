@@ -63,13 +63,3 @@ class CreatePaymentSerializer(serializers.Serializer):
             created_at=timezone.now()
         )
         return payment
-
-
-class PaymentStatusSerializer(serializers.Serializer):
-    payment_id = serializers.IntegerField()
-
-
-class PayoutSerializer(serializers.Serializer):
-    amount = serializers.DecimalField(max_digits=10, decimal_places=2)
-    order_id = serializers.IntegerField()
-    description = serializers.CharField(max_length=255)
