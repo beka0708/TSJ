@@ -8,7 +8,7 @@ services:
   api:
     build: .
     command: >
-      sh -c "daphne -b 0.0.0.0 -p 8000 core.asgi:application"
+      sh -c "python manage.py runserver 0.0.0.0:8000"
     container_name: beka
     ports:
       - '8001:8000'
