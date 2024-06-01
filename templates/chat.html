@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat</title>
+</head>
+<body>
+    <div>
+        <input id="search-input" type="text" placeholder="Search...">
+        <select id="filter-select">
+            <option value="">All</option>
+            <option value="true">Archived</option>
+            <option value="false">Not Archived</option>
+            <option value="has_voting">With Voting</option>
+        </select>
+        <button id="search-button">Search</button>
+    </div>
+    <div id="chats"></div>
+    <input id="chat-message-input" type="text" size="100">
+    <input id="chat-message-submit" type="button" value="Send">
+
+    <script>
+        const searchInput = document.getElementById('search-input');
+        const filterSelect = document.getElementById('filter-select');
+        const searchButton = document.getElementById('search-button');
+        const roomName = "testroom";
+        const chatSocket = new WebSocket(
+            'ws://' + window.location.host + '/ws/chat/' + roomName + '/');
+
+        searchButton.onclick = function() {
+            const searchQuery = searchInput.value;
+            const filterQuery = filterSelect.value;
+            fetch(`/api/rooms/?search=${searchQuery}&is_archived=${filterQuery}`)
+                .then(response => response.json())
+                .then(data => {
+                    const chatsDiv = document.getElementById('chats');
+                    chatsDiv.innerHTML = '';
+                    data.forEach(chat => {
+                        chatsDiv.innerHTML += ('<div>' + chat.title + ': ' + chat.description + '</div>');
+                    });
+                });
+        };
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            document.querySelector('#chats').innerHTML += ('<div>' + data.username + ': ' + data.message + '</div>');
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        document.querySelector('#chat-message-input').focus();
+        document.querySelector('#chat-message-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#chat-message-submit').click();
+            }
+        };
+
+        document.querySelector('#chat-message-submit').onclick = function(e) {
+            const messageInputDom = document.querySelector('#chat-message-input');
+            const message = messageInputDom.value;
+            chatSocket.send(JSON.stringify({
+                'message': message
+            }));
+            messageInputDom.value = '';
+        };
+    </script>
+</body>
+</html>

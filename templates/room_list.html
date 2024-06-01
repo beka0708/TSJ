@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Room List</title>
+</head>
+<body>
+    <h1>Available Rooms</h1>
+    <ul>
+        {% for room in rooms %}
+            <li><a href="{% url 'chat_room' room.title %}">{{ room.title }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
