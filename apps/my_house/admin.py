@@ -1,11 +1,10 @@
 from django.contrib import admin
 
 from .models import DomKom, HelpInfo, Camera, \
-    PaymentType, Debt, Payment, Photo
+     Debt, Payment, Photo
 
 admin.site.register(Camera)
 admin.site.register(Payment)
-admin.site.register(PaymentType)
 admin.site.register(Debt)
 
 

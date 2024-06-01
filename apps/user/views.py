@@ -10,7 +10,7 @@ from .models import DeviceToken
 from .permissions import AllowAny
 from .serializers import UserSerializer, DeviceTokenSerializer
 from .utils import SendSMS
-from ..my_house.views import CsrfExemptSessionAuthentication
+from apps.payment.views import CsrfExemptSessionAuthentication
 
 CustomUser = get_user_model()
 

@@ -14,7 +14,7 @@ from .serializers import (
     FlatTenantSerializers,
     FlatSerializers,
 )
-from ..my_house.views import CsrfExemptSessionAuthentication
+from apps.payment.views import CsrfExemptSessionAuthentication
 
 
 class HouseViewSet(viewsets.ModelViewSet):

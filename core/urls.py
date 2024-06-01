@@ -19,6 +19,7 @@ urlpatterns = [
     path('chat/<str:room_name>/', chat_room, name='chat_room'),
     path("ckeditor5/", include('django_ckeditor_5.urls')),
     path("api/", include('apps.blogs.urls')),
+    path("api/", include('apps.payment.urls')),
 
 ]
 if settings.DEBUG:
