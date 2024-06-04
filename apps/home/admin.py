@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
+from django.utils.html import format_html
 
 from .models import (
     TSJ,
@@ -95,12 +96,17 @@ class VoteResultInline(admin.TabularInline):
 
 @admin.register(Vote)
 class VoteAdmin(admin.ModelAdmin):
-    list_display = ('title', 'tjs', 'created_date', 'deadline', 'yes_count', 'no_count', "views_count")
-    inlines = [VoteResultInline]
+    list_display = ('title', 'tjs', 'created_date', 'deadline', 'yes_count', 'no_count', 'room_link')
+    list_filter = ('tjs', 'created_date', 'deadline')
+    search_fields = ('title',)
 
-    def views_count(self, obj):
-        return obj.views.count()
-    views_count.short_description = "Просмотры"
+    def room_link(self, obj):
+        if obj.room:
+            return format_html(f"<a href='{obj.room.get_url()}'>Перейти к каналу</a>")
+        return None
+
+    room_link.allow_tags = True
+    room_link.short_description = 'Ссылка на канал'
 
 
 @admin.register(VoteView)

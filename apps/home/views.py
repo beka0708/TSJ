@@ -79,14 +79,12 @@ class VoteViewSet(viewsets.ModelViewSet):
 
         instance = self.get_object()
 
-        # Check if the deadline has passed
         if instance.deadline <= timezone.now():
             return Response(
                 {"error": "Голосование уже завершено."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # проверка голосов пользователей
         user_has_voted = instance.votes.filter(user=request.user).exists()
         if user_has_voted:
             return Response(
@@ -101,14 +99,12 @@ class VoteViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Обновление количества голосов
         if vote_value == "за":
             instance.yes_count += 1
         elif vote_value == "против":
             instance.no_count += 1
         instance.save()
 
-        # Сохранение голоса пользователя
         VoteResult.objects.create(vote=instance, user=request.user, vote_value=vote_value)
 
         total_votes = instance.yes_count + instance.no_count
@@ -126,7 +122,6 @@ class VoteViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
 
-        # Учет просмотра пользователем
         if request.user.is_authenticated:
             VoteView.objects.get_or_create(vote=instance, user=request.user)
 

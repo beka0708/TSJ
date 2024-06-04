@@ -88,16 +88,3 @@ class ResidenceCertificate(models.Model):
         return f"Справка для {self.owner_name}"
 
 
-# class ResidentHistory(models.Model):
-#     flat = models.ForeignKey(Flat, on_delete=models.CASCADE, verbose_name="Квартира")
-#     resident_surname = models.CharField(max_length=100, verbose_name="Фамилия жителя")
-#     start_date = models.DateField(verbose_name="Дата начала проживания")
-#     end_date = models.DateField(null=True, blank=True, verbose_name="Дата окончания проживания")
-#     owner = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Владелец на момент проживания")
-#
-#     class Meta:
-#         verbose_name = "История жителей квартиры"
-#         verbose_name_plural = "История жителей квартир"
-#
-#     def __str__(self):
-#         return f"{self.resident_surname} в квартире {self.flat}"

@@ -16,7 +16,7 @@ urlpatterns = [
     path("myhouse/", include("apps.my_house.urls")),
     path("chat/", include("apps.chat.urls")),
     path('rooms/', room_list, name='room_list'),
-    path('chat/<str:room_name>/', chat_room, name='chat_room'),
+    path('chat/<int:room_id>/', chat_room, name='chat_room'),
     path("ckeditor5/", include('django_ckeditor_5.urls')),
 
 ]

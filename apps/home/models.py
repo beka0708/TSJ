@@ -4,6 +4,8 @@ from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 from django_ckeditor_5.fields import CKEditor5Field
 
+from apps.chat.models import Room
+
 User = get_user_model()
 
 
@@ -13,7 +15,7 @@ class TSJ(models.Model):
 
     class Meta:
         verbose_name = "ТСЖ"
-        verbose_name_plural = "Добавить ТСЖ"
+        verbose_name_plural = "ТСЖ"
 
     def __str__(self):
         return self.name
@@ -39,8 +41,8 @@ class House(models.Model):
             raise ValidationError("Дом с таким номером уже существует.")
 
     class Meta:
-        verbose_name = "Дома"
-        verbose_name_plural = "Добавить дом"
+        verbose_name = "дом"
+        verbose_name_plural = "Дома"
 
     def __str__(self):
         return self.name_block
@@ -60,8 +62,8 @@ class FlatOwner(models.Model):
     created_date = models.DateField(auto_now_add=True, null=True)
 
     class Meta:
-        verbose_name = "Владельцы"
-        verbose_name_plural = "Добавить владельца"
+        verbose_name = "владелец"
+        verbose_name_plural = "Владельцы"
 
     def __str__(self):
         return f"Владелец: {self.user.name}, Квартира: {self.flat}"
@@ -84,20 +86,23 @@ class FlatTenant(models.Model):
     created_date = models.DateField(auto_now_add=True, null=True)
 
     class Meta:
-        verbose_name = "Квартирант"
-        verbose_name_plural = "Добавить квартиранта"
+        verbose_name = "Квартиранта"
+        verbose_name_plural = "Квартиранты"
 
     def __str__(self):
         return f"Квартирант: {self.user.name}, Квартира {self.flat}"
 
 
 class Flat(models.Model):
+    """
+    Квартира
+    """
     house = models.ForeignKey("House", models.CASCADE, null=True, verbose_name="Дом")
     number = models.PositiveIntegerField(verbose_name="Номер квартиры")
 
     class Meta:
-        verbose_name = "Квартиры"
-        verbose_name_plural = "Добавить квартиру"
+        verbose_name = "Квартиру"
+        verbose_name_plural = "Квартиры"
         unique_together = (("house", "number"),)
 
     def __str__(self):
@@ -109,6 +114,9 @@ class Flat(models.Model):
 
 
 class ApartmentHistory(models.Model):
+    """
+    История квартиры
+    """
     flat = models.ForeignKey(Flat, on_delete=models.CASCADE, verbose_name="Квартира")
     owner = models.ForeignKey(FlatOwner, on_delete=models.CASCADE, related_name='user_history',
                               null=True, verbose_name="Владелец")
@@ -122,13 +130,16 @@ class ApartmentHistory(models.Model):
 
     class Meta:
         verbose_name = "История квартир"
-        verbose_name_plural = "История квартиры"
+        verbose_name_plural = "История квартир"
 
 
 TYPE = {"Новости": "Новости", "Объявления": "Объявления"}
 
 
 class News(models.Model):
+    """
+    Новости
+    """
     tsj = models.ForeignKey("TSJ", models.CASCADE, null=True, verbose_name="ТСЖ")
     type = models.CharField(max_length=100, choices=TYPE, verbose_name="Тип")
     title = models.CharField(max_length=200, verbose_name="Заголовок")
@@ -140,8 +151,8 @@ class News(models.Model):
     update_date = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
 
     class Meta:
-        verbose_name = "Новости"
-        verbose_name_plural = "Добавить новость"
+        verbose_name = "новость"
+        verbose_name_plural = "Новости"
 
     def __str__(self):
         return self.title
@@ -168,6 +179,7 @@ class Vote(models.Model):
     deadline = models.DateTimeField(verbose_name="Конец голосование")
     yes_count = models.IntegerField(default=0, verbose_name='Количество ответов "за')
     no_count = models.IntegerField(default=0, verbose_name='Количество ответов "нет')
+    room = models.OneToOneField(Room, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Канал обсуждения")
 
     class Meta:
         verbose_name = "Голосование"
@@ -210,6 +222,9 @@ VOTING = {
 
 
 class Request_Vote_News(models.Model):
+    """
+    Запросы на добавление голосования или объявления
+    """
     tsj = models.ForeignKey(TSJ, on_delete=models.CASCADE, verbose_name="ТСЖ")
     user = models.ForeignKey(User, on_delete=models.CASCADE,
                              verbose_name="От пользователя")

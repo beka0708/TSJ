@@ -10,8 +10,8 @@ def room_list(request):
     return render(request, 'room_list.html', {'rooms': rooms})
 
 
-def chat_room(request, room_name):
-    room = get_object_or_404(Room, title=room_name)
+def chat_room(request, room_id):
+    room = get_object_or_404(Room, id=room_id)
     messages = Message.objects.filter(room=room).order_by('timestamp')
     return render(request, 'chat_room.html', {'room': room, 'messages': messages})
 

@@ -25,9 +25,9 @@ class CustomUserAdmin(BaseUserAdmin):
     list_filter = ("is_status", "is_active")
     fieldsets = (
         (None, {"fields": ("name", "email", "address", "phone_number", "password")}),
-        ("Permissions", {"fields": ("is_staff", "groups", "user_permissions")}),
+        ("Доступы", {"fields": ("is_staff", "groups", "user_permissions")}),
         (
-            "Custom fields",
+            "Одобрение",
             {
                 "fields": (
                     "role",

@@ -2,51 +2,105 @@
 <html>
 <head>
     <title>Chat Room - {{ room.title }}</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: auto;
+        }
+        .chat-app {
+            width: 400px;
+            margin-top: 50px;
+            background: #0a602c;
+            padding: 30px;
+            border-radius: 20px;
+            color: #fff;
+        }
+        .chat-app h1 {
+            color: #fff;
+        }
+        #chat-log {
+            background: #fff;
+            overflow: auto;
+            height: 300px;
+            font-size: 17px;
+            padding: 10px;
+            border-radius: 15px;
+            color: #000;
+            margin-bottom: 20px;
+        }
+        #chat-form {
+            display: flex;
+            justify-content: space-between;
+            padding: 7px;
+        }
+        #chat-form input {
+            outline: none;
+            font-size: 16px;
+            border: none;
+            border-radius: 20px;
+            padding: 10px;
+            width: 70%;
+        }
+        #chat-form button {
+            border: 1px solid #fff;
+            background: #0a602c;
+            width: 50px;
+            height: 40px;
+            border-radius: 20px;
+            color: #fff;
+            outline: none;
+        }
+    </style>
 </head>
 <body>
+<div class="chat-app">
     <h1>Room: {{ room.title }}</h1>
     <div id="chat-log">
         {% for message in messages %}
-            <div><strong>{{ message.user.name }}:</strong> {{ message.content }}
-                <span style="font-size: smaller; color: gray;"> ({{ message.timestamp|date:"m-d H:i" }})</span>
+            <div>
+                <strong>{{ message.user.name }}</strong>: {{ message.content }}
+                <span>({{ message.timestamp|date:"m-d H:i" }})</span>
             </div>
         {% endfor %}
     </div>
     {% if not room.is_archived %}
         <form id="chat-form">
             {% csrf_token %}
-            <input type="text" id="chat-message-input" autocomplete="off"/>
-            <button type="submit">Send</button>
+            <input type="text" id="chat-message-input" autocomplete="off" placeholder="Сообщение..."/>
+            <button type="submit">></button>
         </form>
     {% else %}
         <p>This room is archived. You can only read messages.</p>
     {% endif %}
-    <script>
-        const roomName = "{{ room.title }}";
-        const chatSocket = new WebSocket(
-            'ws://' + window.location.host + '/ws/chat/' + roomName + '/'
-        );
+</div>
 
-        chatSocket.onmessage = function(e) {
-            const data = JSON.parse(e.data);
-            const chatLog = document.getElementById('chat-log');
-            chatLog.innerHTML += (
-                '<div><strong>' + data.username + ':</strong> ' + data.message +
-                '<span style="font-size: smaller; color: gray;"> (' + data.timestamp + ')</span></div>'
-            );
+<script>
+    const roomId = "{{ room.id }}";
+    const chatSocket = new WebSocket(
+        'ws://' + window.location.host + '/ws/chat/' + roomId + '/'
+    );
+
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        const chatLog = document.getElementById('chat-log');
+        if (data.message) {
+            chatLog.innerHTML += '<div><strong>' + data.username + '</strong>: ' + data.message + ' <span>(' + data.timestamp + ')</span></div>';
+        }
+    };
+
+    {% if not room.is_archived %}
+        document.getElementById('chat-form').onsubmit = function(e) {
+            e.preventDefault();
+            const messageInputDom = document.getElementById('chat-message-input');
+            const message = messageInputDom.value;
+            chatSocket.send(JSON.stringify({
+                'message': message
+            }));
+            messageInputDom.value = '';
         };
-
-        {% if not room.is_archived %}
-            document.getElementById('chat-form').onsubmit = function(e) {
-                e.preventDefault();
-                const messageInputDom = document.getElementById('chat-message-input');
-                const message = messageInputDom.value;
-                chatSocket.send(JSON.stringify({
-                    'message': message
-                }));
-                messageInputDom.value = '';
-            };
-        {% endif %}
-    </script>
+    {% endif %}
+</script>
 </body>
 </html>

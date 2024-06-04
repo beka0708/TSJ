@@ -1,8 +1,23 @@
 from django.utils import timezone
-
+from django.utils.text import slugify
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from .models import FlatOwner, FlatTenant, ApartmentHistory
+from .models import FlatOwner, FlatTenant, ApartmentHistory, Vote
+from apps.chat.models import Room
+
+
+@receiver(post_save, sender=Vote)
+def create_room_for_vote(sender, instance, created, **kwargs):
+    if created:
+        room, _ = Room.objects.get_or_create(
+            title=instance.title,
+            defaults={
+                'description': f"Канал для обсуждения голосования '{instance.title}'",
+                'has_voting': True
+            }
+        )
+        instance.room = room
+        instance.save()
 
 
 @receiver(post_save, sender=FlatOwner)

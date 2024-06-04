@@ -35,7 +35,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         help_text="Пример: +996700777777",
         null=True,
     )
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, blank=True)
     name = models.CharField(
         max_length=100,
         verbose_name="Имя",
@@ -71,13 +71,28 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ["email"]
 
     def save(self, *args, **kwargs):
+        # Check current state of the user
+        is_new_user = self.pk is None
+        old_user = None if is_new_user else CustomUser.objects.get(pk=self.pk)
+
+        # Update is_active status based on is_status
         if self.is_status == CustomUser.APPROVED:
+            self.is_active = True
+        elif self.is_superuser:
             self.is_active = True
         elif self.is_status == CustomUser.NOT_APPROVED:
             self.is_active = False
         else:
             self.is_active = False
+
         super().save(*args, **kwargs)
+
+        # Create profile if user is approved and active
+        if not is_new_user:
+            if old_user.is_active != self.is_active or old_user.is_approved != self.is_approved:
+                if self.is_active and self.is_approved:
+                    from apps.userprofile.models import Profile
+                    Profile.objects.get_or_create(user=self)
 
     def __str__(self):
         return self.name

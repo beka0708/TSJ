@@ -24,7 +24,7 @@ class UserRegistrationView(APIView):
         if serializer.is_valid():
             user = serializer.save()
             # Отправляем SMS с кодом подтверждения
-            # SendSMS.send_confirmation_sms(user)
+            SendSMS.send_confirmation_sms(user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             print("Validation errors:", serializer.errors)  # Выводим ошибки валидации для отладки
@@ -76,6 +76,7 @@ class DeviceTokenAPIView(generics.CreateAPIView):
 
 class VerifyCodeView(APIView):
     permission_classes = [AllowAny]
+    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication,)
 
     def post(self, request):
         phone_number = request.data.get("phone_number", None)

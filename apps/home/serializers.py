@@ -41,6 +41,7 @@ class NewsSerializer(serializers.ModelSerializer):
 class VoteSerializer(serializers.ModelSerializer):
     views_count = serializers.SerializerMethodField()
     description = CKEditor5Field()
+    room_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Vote
@@ -48,6 +49,11 @@ class VoteSerializer(serializers.ModelSerializer):
 
     def get_views_count(self, obj):
         return obj.views.count()
+
+    def get_room_url(self, obj):
+        if obj.room:
+            return obj.room.get_url()
+        return None
 
 
 class VoteResultSerializer(serializers.ModelSerializer):

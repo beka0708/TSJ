@@ -2,13 +2,46 @@
 <html>
 <head>
     <title>Room List</title>
+    <style>
+        body {
+            text-align: center;
+            align-items: center;
+        }
+        ul, li, a {
+            text-decoration: none;
+            font-weight: bold;
+            color: black;
+            font-size: 25px;
+            transition: 0.7s;
+            list-style-type: none;
+            margin: 5px;
+            padding: 4px;
+        }
+        div {
+            border: 4px solid red;
+            width: 250px;
+            height: auto;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        a:hover {
+            padding: 4px;
+            color: lightgreen;
+            border: 2px solid red;
+        }
+        div h1 {
+            color: #0a6ebd;
+        }
+    </style>
 </head>
 <body>
-    <h1>Available Rooms</h1>
-    <ul>
-        {% for room in rooms %}
-            <li><a href="{% url 'chat_room' room.title %}">{{ room.title }}</a></li>
-        {% endfor %}
-    </ul>
+    <div>
+        <h1>Список каналов</h1>
+        <ul>
+            {% for room in rooms %}
+                <li><a href="{% url 'chat_room' room.id %}">{{ room.title }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
 </body>
 </html>
