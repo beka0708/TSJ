@@ -24,10 +24,6 @@ class UserRegistrationView(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication,)
 
     @extend_schema(
-        parameters=[
-            UserSerializer,  # serializer fields are converted to parameters
-
-        ],
         request=UserSerializer,
         responses=UserSerializer,
     )
@@ -36,7 +32,7 @@ class UserRegistrationView(APIView):
         if serializer.is_valid():
             user = serializer.save()
             # Отправляем SMS с кодом подтверждения
-            # SendSMS.send_confirmation_sms(user)
+            SendSMS.send_confirmation_sms(user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             print("Validation errors:", serializer.errors)  # Выводим ошибки валидации для отладки
@@ -137,7 +133,7 @@ class VerifyCodeView(APIView):
             name='VerifyCodeView',
             fields={
                 'phone_number': serializers.CharField(),
-                'password': serializers.CharField()
+                'verification_code': serializers.CharField()
             }
         ),
         responses={
