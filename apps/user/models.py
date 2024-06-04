@@ -82,6 +82,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
             self.is_active = True
         elif self.is_status == CustomUser.NOT_APPROVED:
             self.is_active = False
+        elif self.is_superuser:
+            self.is_active = True
         else:
             self.is_active = False
 

@@ -13,5 +13,4 @@ router.register(r'debt', DebtViewSet, basename="debt")
 
 urlpatterns = [
     path('', include(router.urls)),
-
 ]

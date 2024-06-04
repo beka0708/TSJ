@@ -27,7 +27,16 @@ AUTH_USER_MODEL = "user.CustomUser"
 
 ALLOWED_HOSTS = ["*"]
 
-MY_APPS = ["apps.chat", "apps.home", "apps.my_house", "apps.user", "apps.userprofile"]
+MY_APPS = [
+    "apps.chat",
+    "apps.home",
+    "apps.my_house",
+    "apps.user",
+    "apps.userprofile",
+    "apps.blogs",
+    "apps.payment",
+    "apps.notifications"
+]
 
 THIRD_PARTY_APPS = [
     "rest_framework",
@@ -90,7 +99,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
+            "hosts": [('redis', 6379)],
         },
     },
 }

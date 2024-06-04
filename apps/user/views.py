@@ -10,15 +10,23 @@ from .models import DeviceToken
 from .permissions import AllowAny
 from .serializers import UserSerializer, DeviceTokenSerializer
 from .utils import SendSMS
-from ..my_house.views import CsrfExemptSessionAuthentication
+from apps.payment.views import CsrfExemptSessionAuthentication
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse, inline_serializer
+from drf_spectacular.openapi import OpenApiTypes
+from rest_framework import serializers
 
 CustomUser = get_user_model()
 
 
 class UserRegistrationView(APIView):
+    """Регистрация пользователя через телефон."""
     permission_classes = [AllowAny]
     authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication,)
 
+    @extend_schema(
+        request=UserSerializer,
+        responses=UserSerializer,
+    )
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
@@ -34,6 +42,46 @@ class UserRegistrationView(APIView):
 class PhoneNumberAuthenticationView(APIView):
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        operation_id='phone_number_authentication',
+        summary='Phone Number Authentication',
+        description='Authenticate a user using their phone number and password.',
+        request=inline_serializer(
+            name='PhoneNumberAuthRequest',
+            fields={
+                'phone_number': serializers.CharField(),
+                'password': serializers.CharField()
+            }
+        ),
+        responses={
+            200: inline_serializer(
+                name='AuthTokenResponse',
+                fields={
+                    'refresh': serializers.CharField(),
+                    'access': serializers.CharField()
+                }
+            ),
+            400: inline_serializer(
+                name='BadRequestResponse',
+                fields={
+                    'error': serializers.CharField()
+                }
+            ),
+            401: inline_serializer(
+                name='UnauthorizedResponse',
+                fields={
+                    'error': serializers.CharField()
+                }
+            ),
+            403: inline_serializer(
+                name='ForbiddenResponse',
+                fields={
+                    'error': serializers.CharField()
+                }
+            ),
+        },
+
+    )
     def post(self, request):
         phone_number = request.data.get("phone_number", None)
         password = request.data.get("password", None)
@@ -78,6 +126,46 @@ class VerifyCodeView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication,)
 
+    @extend_schema(
+        operation_id='phone_number_verify',
+        summary='Phone Number verify',
+        description='Authenticate a user using their phone number and password.',
+        request=inline_serializer(
+            name='VerifyCodeView',
+            fields={
+                'phone_number': serializers.CharField(),
+                'verification_code': serializers.CharField()
+            }
+        ),
+        responses={
+            200: inline_serializer(
+                name='AuthTokenResponse',
+                fields={
+                    'refresh': serializers.CharField(),
+                    'access': serializers.CharField()
+                }
+            ),
+            400: inline_serializer(
+                name='BadRequestResponse',
+                fields={
+                    'error': serializers.CharField()
+                }
+            ),
+            401: inline_serializer(
+                name='UnauthorizedResponse',
+                fields={
+                    'error': serializers.CharField()
+                }
+            ),
+            403: inline_serializer(
+                name='ForbiddenResponse',
+                fields={
+                    'error': serializers.CharField()
+                }
+            ),
+        },
+
+    )
     def post(self, request):
         phone_number = request.data.get("phone_number", None)
         verification_code = request.data.get("verification_code", None)

@@ -20,7 +20,8 @@ class IsManagerOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
-        return request.user.role == "MANAGER"
+        if request.user.is_authenticated:
+            return request.user.role == "MANAGER"
 
 
 class IsOwnerOrReadOnly(permissions.BasePermission):

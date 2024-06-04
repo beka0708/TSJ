@@ -6,16 +6,15 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly, IsManagerOrReadOnly
-from .models import House, FlatOwner, FlatTenant, Flat, News
+from .models import House, FlatOwner, FlatTenant, Flat
 from .serializers import *
 from .serializers import (
     HouseSerializers,
     FlatOwnerSerializers,
     FlatTenantSerializers,
     FlatSerializers,
-    NewsSerializer
 )
-from ..my_house.views import CsrfExemptSessionAuthentication
+from apps.payment.views import CsrfExemptSessionAuthentication
 
 
 class HouseViewSet(viewsets.ModelViewSet):
@@ -42,20 +41,7 @@ class FlatViewSet(viewsets.ModelViewSet):
     permission_classes = [IsManagerOrReadOnly]
 
 
-class NewsViewSet(viewsets.ModelViewSet):
-    queryset = News.objects.all()
-    serializer_class = NewsSerializer
-    permission_classes = [IsManagerOrReadOnly]
 
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-
-        # Учет просмотра пользователем
-        if request.user.is_authenticated:
-            NewsView.objects.get_or_create(news=instance, user=request.user)
-
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data)
 
 
 class RequestVoteViewSet(viewsets.ModelViewSet):
