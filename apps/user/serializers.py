@@ -10,8 +10,6 @@ CustomUser = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
-    is_active = serializers.BooleanField(read_only=True)
-    is_approved = serializers.CharField(read_only=True)
     phone_number = PhoneNumberField()
 
     def validate_address(self, value):
@@ -34,13 +32,11 @@ class UserSerializer(serializers.ModelSerializer):
         fields = (
             "email",
             "phone_number",
-            "is_active",
             "name",
             "password",
             "confirm_password",
             "address",
             "role",
-            "is_approved",
         )
 
     def create(self, validated_data):
