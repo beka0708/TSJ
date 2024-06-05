@@ -46,6 +46,7 @@ THIRD_PARTY_APPS = [
     "reportlab",
     "channels",
     "drf_spectacular",
+    "django_filters"
 ]
 
 INSTALLED_APPS = (

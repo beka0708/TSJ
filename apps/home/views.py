@@ -15,6 +15,8 @@ from .serializers import (
     FlatSerializers,
 )
 from apps.payment.views import CsrfExemptSessionAuthentication
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 
 
 class HouseViewSet(viewsets.ModelViewSet):
@@ -41,9 +43,6 @@ class FlatViewSet(viewsets.ModelViewSet):
     permission_classes = [IsManagerOrReadOnly]
 
 
-
-
-
 class RequestVoteViewSet(viewsets.ModelViewSet):
     queryset = Request_Vote_News.objects.all()
     serializer_class = RequestVoteSerializers
@@ -55,6 +54,9 @@ class VoteViewSet(viewsets.ModelViewSet):
     serializer_class = VoteSerializer
     authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication,)
     permission_classes = (IsAuthenticated,)
+
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    search_fields = ["title", "description", ]
 
     def update(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
