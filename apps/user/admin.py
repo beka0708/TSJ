@@ -4,12 +4,12 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.shortcuts import redirect
 from django.urls import path
-
+from .models import PasswordReset
 from .models import DeviceToken
 
 CustomUser = get_user_model()
 
-
+admin.site.register(PasswordReset)
 class CustomUserAdmin(BaseUserAdmin):
     list_display = (
         "phone_number",

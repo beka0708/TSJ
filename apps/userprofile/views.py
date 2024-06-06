@@ -1,13 +1,19 @@
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from apps.user.utils import SendSMS
+from .utils import SendSMS
+from apps.user.models import PasswordReset
 from apps.home.permissions import IsManagerOrReadOnly
 from .models import Profile, Request, ResidenceCertificate
 from .serializers import ProfileSerializer, ChangePasswordSerializer, \
-    RequestSerializer, ResidenceCertificateSerializer, ChangeSendPasswordSerializer
+    RequestSerializer, PasswordResetRequestSerializer, PasswordResetConfirmSerializer, ConfirmResetPassCodeSerializer
+from rest_framework.views import APIView
+import random
+from django.utils import timezone
+from datetime import timedelta
+from drf_spectacular.utils import extend_schema
 
 User = get_user_model()
 
@@ -42,37 +48,73 @@ class ChangePasswordViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class SendVerificationCodeViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated]
+class SendVerificationCodeViewSet(APIView):
+    permission_classes = [AllowAny]
 
-    def create(self, request, *args, **kwargs):
-        # Проверяем, существует ли номер телефона пользователя
-        if not request.user.phone_number:
-            return Response({"error": "Номер телефона пользователя не найден."}, status=status.HTTP_400_BAD_REQUEST)
-        # Отправка кода подтверждения
-        # SendSMS.send_confirmation_sms(request.user)
-        return Response({"status": "Код отправлен."}, status=status.HTTP_200_OK)
+    @extend_schema(
+        request=PasswordResetRequestSerializer,
 
-
-class ChangeSendPasswordViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated]
-
-    def create(self, request, *args, **kwargs):
-        serializer = ChangeSendPasswordSerializer(data=request.data)
-
+    )
+    def post(self, request):
+        serializer = PasswordResetRequestSerializer(data=request.data)
         if serializer.is_valid():
-            verification_code = serializer.validated_data['verification_code']
-            new_password = serializer.validated_data['new_password']
+            try:
+                user = User.objects.get(phone_number=serializer.validated_data['phone_number'])
+                password_reset, created = PasswordReset.objects.get_or_create(user=user, used=False)
+                if not created:
+                    password_reset.token = str(random.randint(1000, 9999))
+                    password_reset.created_at = timezone.now()
+                    password_reset.save()
 
-            # Проверка кода
-            user = request.user
-            if user.verification_code != verification_code:
-                return Response({"error": "Неверный код"}, status=status.HTTP_400_BAD_REQUEST)
+                SendSMS.send_password_sms(user, password_reset.token)
+                return Response({'message': 'Password reset token sent'}, status=status.HTTP_200_OK)
+            except User.DoesNotExist:
+                return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-            # Изменение пароля
-            user.set_password(new_password)
-            user.save()
-            return Response({"status": "Пароль успешно изменен"}, status=status.HTTP_200_OK)
+
+class CodeConfirmView(APIView):
+    @extend_schema(
+        request=ConfirmResetPassCodeSerializer,
+
+    )
+    def post(self, request):
+        serializer = ConfirmResetPassCodeSerializer(data=request.data)
+        if serializer.is_valid():
+            code = PasswordReset.objects.filter(user__phone_number=serializer.validated_data['phone_number'],
+                                                token=serializer.validated_data['code'],
+                                                used=False
+                                                ).first()
+            if code:
+                code.is_verif = True
+                code.save()
+                return Response({"success": True})
+        return Response({"success": False})
+
+
+class ConfirmPasswordResetView(APIView):
+    @extend_schema(
+        request=PasswordResetConfirmSerializer,
+
+    )
+    def post(self, request):
+        serializer = PasswordResetConfirmSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                password_reset = PasswordReset.objects.get(
+                    token=serializer.validated_data['code'],
+                    used=False,
+                    created_at__gte=timezone.now() - timedelta(hours=24),
+                    is_verif=True
+                )
+                user = password_reset.user
+                user.set_password(serializer.validated_data['new_password'])
+                user.save()
+                password_reset.used = True
+                password_reset.save()
+                return Response({'message': 'Password has been reset'}, status=status.HTTP_200_OK)
+            except PasswordReset.DoesNotExist:
+                return Response({'error': 'Invalid or expired token'}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -80,4 +122,3 @@ class RequestViewSet(viewsets.ModelViewSet):
     queryset = Request.objects.all()
     serializer_class = RequestSerializer
     permission_classes = [IsManagerOrReadOnly]
-

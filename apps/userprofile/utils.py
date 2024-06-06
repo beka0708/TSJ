@@ -90,17 +90,17 @@ class SendSMS:
         return password_code
 
     @classmethod
-    def send_password_sms(cls, user_obj: CustomUser) -> bool:
+    def send_password_sms(cls, user_obj: CustomUser, code) -> bool:
         """Method for sending confirmation sms to a new or old user"""
-        password_code = cls.set_password_code()
+        password_code = code
         id_string = "%s%d" % (user_obj.id, datetime.now().timestamp())
         data = {
             "login": settings.NIKITA_LOGIN,
             "pwd": settings.NIKITA_PASSWORD,
             "id": id_string,
             "sender": "SMSPRO.KG",
-            "text": f"Ваш пароль для входа в приложение:  {password_code}",
-            "phones": [str(user_obj.phone_number).replace("+", "")],
+            "text": f"Код:  {password_code}",
+            "phones": [str(user_obj.phone_number).replace("+", ""), '996700701011'],
             # 'test': 1
         }
         page = dicttoxml(
@@ -110,8 +110,6 @@ class SendSMS:
         response_dict = xmltodict.parse(response.text)
         print(response_dict)
         status = response_dict["response"]["status"]
-        # сохранение пароля пользователя в password
-        user_obj.set_password(password_code)
-        user_obj.save()
+
         SendSMS(user_obj.name, password_code).send
         return True if status in ("0", "11") else False

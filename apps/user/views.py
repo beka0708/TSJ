@@ -4,16 +4,25 @@ from rest_framework.authentication import BasicAuthentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+from django.utils import timezone
+from datetime import timedelta
 
 from .backends import PhoneNumberBackend
-from .models import DeviceToken
+from .models import DeviceToken, PasswordReset
 from .permissions import AllowAny
-from .serializers import UserSerializer, DeviceTokenSerializer
+from .serializers import (
+    UserSerializer,
+    DeviceTokenSerializer,
+    PasswordResetRequestSerializer,
+    PasswordResetConfirmSerializer
+)
 from .utils import SendSMS
 from apps.payment.views import CsrfExemptSessionAuthentication
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse, inline_serializer
 from drf_spectacular.openapi import OpenApiTypes
 from rest_framework import serializers
+
+import random
 
 CustomUser = get_user_model()
 
@@ -197,3 +206,24 @@ class VerifyCodeView(APIView):
                 {"error": "Необходимо указать номер телефона и код подтверждения."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+
+class RequestPasswordResetView(APIView):
+    def post(self, request):
+        serializer = PasswordResetRequestSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                user = CustomUser.objects.get(phone_number=serializer.validated_data['phone_number'])
+                password_reset, created = PasswordReset.objects.get_or_create(user=user, used=False)
+                if not created:
+                    password_reset.token = str(random.randint(1000, 9999))
+                    password_reset.created_at = timezone.now()
+                    password_reset.save()
+
+                SendSMS.send_confirmation_sms(user)
+                return Response({'message': 'Password reset token sent'}, status=status.HTTP_200_OK)
+            except CustomUser.DoesNotExist:
+                return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+

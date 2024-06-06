@@ -5,28 +5,28 @@ from django.core.exceptions import ValidationError
 import re
 from apps.user.managers import CustomUserManager
 
+OWNER = "OWNER"
+TENANT = "TENANT"
+MANAGER = "MANAGER"
+LODGER = "LODGER"
+ROLE_CHOICES = [
+    (OWNER, "Владелец"),
+    (TENANT, "Арендатор"),
+    (MANAGER, "Менеджер"),
+    (LODGER, "Жилец"),
+]
+
+APPROVED = "APPROVED"
+NOT_APPROVED = "NOT_APPROVED"
+PENDING = "PENDING"
+APPROVAL_CHOICES = [
+    (APPROVED, "Одобрен"),
+    (NOT_APPROVED, "Не одобрен"),
+    (PENDING, "В ожидании"),
+]
+
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
-    OWNER = "OWNER"
-    TENANT = "TENANT"
-    MANAGER = "MANAGER"
-    LODGER = "LODGER"
-    ROLE_CHOICES = [
-        (OWNER, "Владелец"),
-        (TENANT, "Арендатор"),
-        (MANAGER, "Менеджер"),
-        (LODGER, "Жилец"),
-    ]
-
-    APPROVED = "APPROVED"
-    NOT_APPROVED = "NOT_APPROVED"
-    PENDING = "PENDING"
-    APPROVAL_CHOICES = [
-        (APPROVED, "Одобрен"),
-        (NOT_APPROVED, "Не одобрен"),
-        (PENDING, "В ожидании"),
-    ]
-
     DoesNotExist = None
     phone_number = PhoneNumberField(
         "Номер телефона",
@@ -76,11 +76,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         old_user = None if is_new_user else CustomUser.objects.get(pk=self.pk)
 
         # Update is_active status based on is_status
-        if self.is_status == CustomUser.APPROVED:
+        if self.is_status == APPROVED:
             self.is_active = True
         elif self.is_superuser:
             self.is_active = True
-        elif self.is_status == CustomUser.NOT_APPROVED:
+        elif self.is_status == NOT_APPROVED:
             self.is_active = False
         elif self.is_superuser:
             self.is_active = True
@@ -121,3 +121,17 @@ class DeviceToken(models.Model):
 
     class Meta:
         verbose_name = "token-device"
+
+
+class PasswordReset(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    token = models.CharField(max_length=4)
+    created_at = models.DateTimeField(auto_now_add=True)
+    used = models.BooleanField(default=False)
+    is_verif = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        import random
+        if not self.token:
+            self.token = str(random.randint(1000, 9999))
+        super().save(*args, **kwargs)

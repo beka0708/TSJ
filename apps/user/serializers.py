@@ -59,3 +59,12 @@ class DeviceTokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeviceToken
         fields = "__all__"
+
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    phone_number = PhoneNumberField()
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    token = serializers.CharField(max_length=4)
+    new_password = serializers.CharField(write_only=True)

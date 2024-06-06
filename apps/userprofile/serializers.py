@@ -1,6 +1,7 @@
 from django.contrib.auth import password_validation
 from rest_framework import serializers
 from .models import Profile, Request, ResidenceCertificate
+from phonenumber_field.serializerfields import PhoneNumberField
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -64,3 +65,17 @@ class ResidenceCertificateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ResidenceCertificate
         fields = ['id', 'owner_surname', 'resident_surname', 'address', 'issue_date']
+
+
+class ConfirmResetPassCodeSerializer(serializers.Serializer):
+    phone_number = PhoneNumberField()
+    code = serializers.CharField()
+
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    phone_number = PhoneNumberField()
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    code = serializers.CharField(max_length=4)
+    new_password = serializers.CharField(write_only=True)
