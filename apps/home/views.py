@@ -14,6 +14,7 @@ from .serializers import (
     FlatTenantSerializers,
     FlatSerializers,
 )
+from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiResponse
 from apps.payment.views import CsrfExemptSessionAuthentication
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
@@ -126,6 +127,59 @@ class ApartmentHistoryViewSet(viewsets.ModelViewSet):
 class FeedHomeView(APIView):
     permission_classes = (AllowAny,)
 
+    @extend_schema(
+        responses={
+            200: OpenApiResponse(
+                response={
+                    'type': 'array',
+                    'items': {
+                        'type': 'object',
+                        'properties': {
+                            'id': {'type': 'integer'},
+                            'title': {'type': 'string'},
+                            'desc': {'type': 'string'},
+                            'type': {'type': 'string', 'enum': ['vote', 'news']},
+                            'date_created': {'type': 'string', 'format': 'date-time'},
+                            'vote_result': {
+                                'type': 'object',
+                                'properties': {
+                                    'y': {'type': 'integer'},
+                                    'n': {'type': 'integer'}
+                                },
+                                'nullable': True
+                            },
+                            'deadline': {'type': 'string', 'format': 'date-time', 'nullable': True}
+                        },
+                        'required': ['id', 'title', 'desc', 'type', 'date_created']
+                    }
+                },
+                examples=[
+                    OpenApiExample(
+                        'Example Response',
+                        summary='Detailed response',
+                        value=[
+                            {
+                                'id': 1,
+                                'title': 'Vote Title',
+                                'desc': 'Vote Description',
+                                'type': 'vote',
+                                'date_created': '2022-01-01T00:00:00Z',
+                                'vote_result': {'y': 10, 'n': 5},
+                                'deadline': '2022-02-01T00:00:00Z',
+                            },
+                            {
+                                'id': 2,
+                                'title': 'News Title',
+                                'desc': 'News Description',
+                                'type': 'news',
+                                'date_created': '2022-01-01T00:00:00Z',
+                            },
+                        ]
+                    )
+                ]
+            )
+        }
+    )
     def get(self, request):
         vote_list = Vote.objects.all()
         news_list = News.objects.all()
