@@ -20,6 +20,7 @@ class CustomUserAdmin(BaseUserAdmin):
         "is_active",
         "is_approved",
         "is_status",
+        "verification_code"
     )
     ordering = ("name",)
     list_filter = ("is_status", "is_active")

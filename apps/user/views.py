@@ -208,22 +208,5 @@ class VerifyCodeView(APIView):
             )
 
 
-class RequestPasswordResetView(APIView):
-    def post(self, request):
-        serializer = PasswordResetRequestSerializer(data=request.data)
-        if serializer.is_valid():
-            try:
-                user = CustomUser.objects.get(phone_number=serializer.validated_data['phone_number'])
-                password_reset, created = PasswordReset.objects.get_or_create(user=user, used=False)
-                if not created:
-                    password_reset.token = str(random.randint(1000, 9999))
-                    password_reset.created_at = timezone.now()
-                    password_reset.save()
-
-                SendSMS.send_confirmation_sms(user)
-                return Response({'message': 'Password reset token sent'}, status=status.HTTP_200_OK)
-            except CustomUser.DoesNotExist:
-                return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

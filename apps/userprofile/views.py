@@ -25,27 +25,27 @@ class ProfileViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
 
-class ChangePasswordViewSet(viewsets.ModelViewSet):
-    serializer_class = ChangePasswordSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return User.objects.filter(id=self.request.user.id)
-
-    def update(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        serializer = self.get_serializer(data=request.data)
-
-        if serializer.is_valid():
-            # Проверяем старый пароль
-            if not self.object.check_password(serializer.validated_data['old_password']):
-                return Response({"old_password": ["Старый пароль неверен."]}, status=status.HTTP_400_BAD_REQUEST)
-            # Устанавливаем новый пароль
-            self.object.set_password(serializer.validated_data['new_password'])
-            self.object.save()
-            return Response({"status": "password set"}, status=status.HTTP_200_OK)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# class ChangePasswordViewSet(viewsets.ModelViewSet):
+#     serializer_class = ChangePasswordSerializer
+#     permission_classes = [IsAuthenticated]
+#
+#     def get_queryset(self):
+#         return User.objects.filter(id=self.request.user.id)
+#
+#     def update(self, request, *args, **kwargs):
+#         self.object = self.get_object()
+#         serializer = self.get_serializer(data=request.data)
+#
+#         if serializer.is_valid():
+#             # Проверяем старый пароль
+#             if not self.object.check_password(serializer.validated_data['old_password']):
+#                 return Response({"old_password": ["Старый пароль неверен."]}, status=status.HTTP_400_BAD_REQUEST)
+#             # Устанавливаем новый пароль
+#             self.object.set_password(serializer.validated_data['new_password'])
+#             self.object.save()
+#             return Response({"status": "password set"}, status=status.HTTP_200_OK)
+#
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SendVerificationCodeViewSet(APIView):
@@ -74,6 +74,8 @@ class SendVerificationCodeViewSet(APIView):
 
 
 class CodeConfirmView(APIView):
+    permission_classes = (AllowAny,)
+
     @extend_schema(
         request=ConfirmResetPassCodeSerializer,
 
@@ -93,6 +95,8 @@ class CodeConfirmView(APIView):
 
 
 class ConfirmPasswordResetView(APIView):
+    permission_classes = (AllowAny,)
+
     @extend_schema(
         request=PasswordResetConfirmSerializer,
 

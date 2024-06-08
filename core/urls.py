@@ -19,7 +19,7 @@ urlpatterns = [
     path('api/rooms/', room_list, name='room_list'),
     path('chat/<int:room_id>/', chat_room, name='chat_room'),
     path("ckeditor5/", include('django_ckeditor_5.urls')),
-    path("api/blogs", include('apps.blogs.urls')),
+    path("api/blogs/", include('apps.blogs.urls')),
     path("api/payment/", include('apps.payment.urls')),
 ]
 
