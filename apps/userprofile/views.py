@@ -89,7 +89,7 @@ class ConfirmPasswordResetView(APIView):
                     is_verif=True
                 )
                 user = password_reset.user
-                user.set_password(serializer.validated_data['new_password'])
+                user.set_password(str(serializer.validated_data['new_password']))
                 user.save()
                 password_reset.used = True
                 password_reset.save()
