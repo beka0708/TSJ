@@ -2,11 +2,11 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.authentication import BasicAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly, IsManagerOrReadOnly
-from .models import House, FlatOwner, FlatTenant, Flat
+from itertools import chain
 from .serializers import *
 from .serializers import (
     HouseSerializers,
@@ -17,6 +17,7 @@ from .serializers import (
 from apps.payment.views import CsrfExemptSessionAuthentication
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+from apps.blogs.models import News
 
 
 class HouseViewSet(viewsets.ModelViewSet):
@@ -120,3 +121,32 @@ class VoteViewSet(viewsets.ModelViewSet):
 class ApartmentHistoryViewSet(viewsets.ModelViewSet):
     queryset = ApartmentHistory.objects.all()
     serializer_class = ApartmentHistorySerializer
+
+
+class FeedHomeView(APIView):
+    permission_classes = (AllowAny,)
+
+    def get(self, request):
+        vote_list = Vote.objects.all()
+        news_list = News.objects.all()
+        new_query = list(chain(vote_list, news_list))
+        response = []
+
+        for enti in new_query:
+            new_enti = {
+                'id': enti.id,
+                'title': enti.title,
+                'desc': enti.description,
+                'type': 'vote' if isinstance(enti, Vote) else 'news',
+                'date_created': enti.created_date,
+
+            }
+            if new_enti['type'] == 'vote':
+                new_enti['vote_result'] = {
+                    'y': enti.yes_count,
+                    'n': enti.no_count
+                }
+                new_enti['deadline'] = enti.deadline
+            response.append(new_enti)
+
+        return Response(response)

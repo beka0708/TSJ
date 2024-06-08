@@ -10,6 +10,8 @@ from .models import DeviceToken
 CustomUser = get_user_model()
 
 admin.site.register(PasswordReset)
+
+
 class CustomUserAdmin(BaseUserAdmin):
     list_display = (
         "phone_number",
@@ -25,7 +27,7 @@ class CustomUserAdmin(BaseUserAdmin):
     ordering = ("name",)
     list_filter = ("is_status", "is_active")
     fieldsets = (
-        (None, {"fields": ("name", "email", "address", "phone_number", "password")}),
+        (None, {"fields": ("name", "email", "address", "phone_number")}),
         ("Доступы", {"fields": ("is_staff", "groups", "user_permissions")}),
         (
             "Одобрение",

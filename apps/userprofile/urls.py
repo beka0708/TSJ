@@ -7,7 +7,7 @@ from .views import ProfileViewSet, RequestViewSet, \
 router = DefaultRouter()
 
 router.register(r'requests', RequestViewSet, basename='request')
-router.register(r'profiles', ProfileViewSet, basename='profile-list-create-retrieve-update')
+router.register(r'', ProfileViewSet, basename='profile-list-create-retrieve-update')
 # router.register(r'change-password', ChangePasswordViewSet, basename='change-password')
 
 urlpatterns = [

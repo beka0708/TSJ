@@ -7,7 +7,7 @@ from .views import (
     FlatViewSet,
 
     VoteViewSet,
-
+    FeedHomeView,
     RequestVoteViewSet, ApartmentHistoryViewSet,
 )
 
@@ -21,5 +21,6 @@ router.register(r"request_votes", RequestVoteViewSet)
 router.register(r'apartment_history', ApartmentHistoryViewSet, basename="flat_history")
 
 urlpatterns = [
-    path("", include(router.urls))
+    path("", include(router.urls)),
+    path("feed/", FeedHomeView.as_view())
 ]
