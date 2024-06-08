@@ -14,11 +14,12 @@ from .serializers import (
     FlatTenantSerializers,
     FlatSerializers,
 )
-from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiResponse
+from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiResponse, OpenApiParameter
 from apps.payment.views import CsrfExemptSessionAuthentication
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from apps.blogs.models import News
+from django.db.models import Q
 
 
 class HouseViewSet(viewsets.ModelViewSet):
@@ -128,6 +129,14 @@ class FeedHomeView(APIView):
     permission_classes = (AllowAny,)
 
     @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name='search',
+                description='Search term for filtering results by title',
+                required=False,
+                type=str
+            )
+        ],
         responses={
             200: OpenApiResponse(
                 response={
@@ -181,8 +190,14 @@ class FeedHomeView(APIView):
         }
     )
     def get(self, request):
+        search_query = request.query_params.get('search', None)
         vote_list = Vote.objects.all()
         news_list = News.objects.all()
+
+        if search_query:
+            vote_list = vote_list.filter(Q(title__icontains=search_query) | Q(description__icontains=search_query))
+            news_list = news_list.filter(Q(title__icontains=search_query) | Q(description__icontains=search_query))
+
         new_query = list(chain(vote_list, news_list))
         response = []
 
@@ -193,14 +208,13 @@ class FeedHomeView(APIView):
                 'desc': enti.description,
                 'type': 'vote' if isinstance(enti, Vote) else 'news',
                 'date_created': enti.created_date,
-
             }
             if new_enti['type'] == 'vote':
-                new_enti['vote_result'] = {
-                    'y': enti.yes_count,
-                    'n': enti.no_count
-                }
+                new_enti['vote_result'] = {'y': enti.yes_count, 'n': enti.no_count}
                 new_enti['deadline'] = enti.deadline
+            else:
+                new_enti['vote_result'] = None
+                new_enti['deadline'] = None
             response.append(new_enti)
 
         return Response(response)
