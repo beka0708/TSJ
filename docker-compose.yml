@@ -9,7 +9,7 @@ services:
     build: .
     command: >
       bash -c "python manage.py runserver 0.0.0.0:8000"
-    container_name: beka
+    container_name: tsj-app
     ports:
       - '8001:8000'
     restart: always

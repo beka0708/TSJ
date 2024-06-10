@@ -22,6 +22,7 @@ class TSJ(models.Model):
 
 
 class House(models.Model):
+    """Дом"""
     name_block = models.CharField(
         max_length=100, null=True, verbose_name="Номер дома", unique=True
     )
@@ -49,6 +50,7 @@ class House(models.Model):
 
 
 class FlatOwner(models.Model):
+    """Владелец квартиры"""
     tsj = models.ForeignKey(
         TSJ, on_delete=models.CASCADE, null=True, verbose_name="ТСЖ"
     )
@@ -112,6 +114,8 @@ class Flat(models.Model):
             else "No house assigned"
         )
 
+    def get_owner(self):
+        return ", ".join(owner.user.name for owner in self.flatowner_set.all())
 
 class ApartmentHistory(models.Model):
     """
@@ -134,6 +138,7 @@ class ApartmentHistory(models.Model):
 
 
 class Vote(models.Model):
+    """Голосование"""
     tjs = models.ForeignKey(TSJ, on_delete=models.CASCADE, verbose_name="Выберите ТСЖ")
     title = models.CharField(max_length=100, verbose_name="Заголовок")
     description = CKEditor5Field(verbose_name="Описание")
@@ -152,6 +157,7 @@ class Vote(models.Model):
 
 
 class VoteResult(models.Model):
+    """Результаты голосвании"""
     vote = models.ForeignKey(Vote, related_name='votes', on_delete=models.CASCADE, verbose_name="Голосование")
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
     vote_value = models.CharField(max_length=10, verbose_name="Голос")  # 'за' или 'против'
@@ -165,6 +171,7 @@ class VoteResult(models.Model):
 
 
 class VoteView(models.Model):
+    """Просмотр голосовании"""
     vote = models.ForeignKey(Vote, related_name='views', on_delete=models.CASCADE, verbose_name="Голосование")
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
     viewed_at = models.DateTimeField(auto_now_add=True, verbose_name="Время просмотра")
@@ -183,23 +190,17 @@ VOTING = {
 }
 
 
-class Request_Vote_News(models.Model):
+class RequestVoteNews(models.Model):
     """
-    Запросы на добавление голосования или объявления
+    Запросы на добавление голосования
     """
     tsj = models.ForeignKey(TSJ, on_delete=models.CASCADE, verbose_name="ТСЖ")
     user = models.ForeignKey(User, on_delete=models.CASCADE,
                              verbose_name="От пользователя")
-    choice = models.CharField(
-        max_length=20, choices=VOTING, verbose_name="Новость или Голосование"
-    )
     title = models.CharField(max_length=100, verbose_name="Заголовок")
     description = CKEditor5Field(verbose_name="Описание")
     created_date = models.DateTimeField(
         auto_now_add=True, null=True, verbose_name="Дата создания"
-    )
-    link = models.URLField(
-        blank=True, verbose_name="Ссылка на источник", help_text="для новостей"
     )
     deadline_date = models.DateTimeField(
         blank=True, verbose_name="Срок голосования", help_text="для голосование"

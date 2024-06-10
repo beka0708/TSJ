@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
-from apps.home.models import Request_Vote_News
+from apps.home.models import RequestVoteNews
 from apps.home.serializers import RequestVoteSerializers
 from .models import DomKom, Camera, HelpInfo, Debt
 

@@ -4,22 +4,16 @@ from rest_framework.authentication import BasicAuthentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
-from django.utils import timezone
-from datetime import timedelta
-
 from .backends import PhoneNumberBackend
-from .models import DeviceToken, PasswordReset
+from .models import DeviceToken
 from .permissions import AllowAny
 from .serializers import (
     UserSerializer,
-    DeviceTokenSerializer,
-    PasswordResetRequestSerializer,
-    PasswordResetConfirmSerializer
+    DeviceTokenSerializer
 )
 from .utils import SendSMS
 from apps.payment.views import CsrfExemptSessionAuthentication
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse, inline_serializer
-from drf_spectacular.openapi import OpenApiTypes
+from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework import serializers
 
 import random

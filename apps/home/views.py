@@ -1,6 +1,6 @@
 from django.utils import timezone
 from rest_framework import status
-from rest_framework import viewsets
+from rest_framework import viewsets, generics
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -14,12 +14,14 @@ from .serializers import (
     FlatTenantSerializers,
     FlatSerializers,
 )
-from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiResponse, OpenApiParameter
+from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiResponse, OpenApiParameter, extend_schema_view, \
+    inline_serializer
 from apps.payment.views import CsrfExemptSessionAuthentication
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from apps.blogs.models import News
 from django.db.models import Q
+from rest_framework.generics import mixins
 
 
 class HouseViewSet(viewsets.ModelViewSet):
@@ -28,10 +30,10 @@ class HouseViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
 
 
-class FlatOwnerViewSet(viewsets.ModelViewSet):
-    queryset = FlatOwner.objects.all()
-    serializer_class = FlatOwnerSerializers
-    permission_classes = [IsOwnerOrReadOnly]
+# class FlatOwnerViewSet(viewsets.ModelViewSet):
+#     queryset = FlatOwner.objects.all()
+#     serializer_class = FlatOwnerSerializers
+#     permission_classes = [IsOwnerOrReadOnly]
 
 
 class FlatTenantViewSet(viewsets.ModelViewSet):
@@ -46,13 +48,57 @@ class FlatViewSet(viewsets.ModelViewSet):
     permission_classes = [IsManagerOrReadOnly]
 
 
-class RequestVoteViewSet(viewsets.ModelViewSet):
-    queryset = Request_Vote_News.objects.all()
+class RequestVoteViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
+    queryset = RequestVoteNews.objects.all()
     serializer_class = RequestVoteSerializers
     permission_classes = [IsOwnerOrReadOnly]
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data, context={'user_id': request.user.id})
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-class VoteViewSet(viewsets.ModelViewSet):
+
+@extend_schema_view(
+    list=extend_schema(
+        summary="Получить список голосов",
+        description="Возвращает список всех голосов.",
+        responses={
+            200: VoteSerializer(many=True)
+        }
+    ),
+    retrieve=extend_schema(
+        summary="Получить голос",
+        description="Возвращает данные конкретного голоса по ID.",
+        responses={
+            200: VoteSerializer,
+            404: OpenApiResponse(description="Голосование не найдено"),
+        }
+    ),
+    update=extend_schema(
+        summary="Обновить голос",
+        description="Обновляет данные конкретного голоса по ID.",
+        request=inline_serializer(
+            name='VoteRequest',
+            fields={
+                'vote': serializers.ChoiceField(choices=['agree', 'disagree'],
+                                                help_text='Ваш голос: "за" или "против".')
+            }
+        ),
+        responses={
+            200: OpenApiResponse(response=dict, description="Проценты голосов"),
+            400: OpenApiResponse(description="Ошибка запроса"),
+            401: OpenApiResponse(description="Необходима аутентификация"),
+        }
+    )
+)
+class VoteViewSet(
+    viewsets.GenericViewSet,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+):
     queryset = Vote.objects.all()
     serializer_class = VoteSerializer
     authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication,)
@@ -63,41 +109,45 @@ class VoteViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return Response(
-                {"error": "Необходима аутентификация."},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
+            return Response({"error": "Необходима аутентификация."}, status=status.HTTP_401_UNAUTHORIZED)
 
         instance = self.get_object()
 
         if instance.deadline <= timezone.now():
-            return Response(
-                {"error": "Голосование уже завершено."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            return Response({"error": "Голосование уже завершено."}, status=status.HTTP_400_BAD_REQUEST)
 
-        user_has_voted = instance.votes.filter(user=request.user).exists()
-        if user_has_voted:
-            return Response(
-                {"error": "Вы уже проголосовали."}, status=status.HTTP_400_BAD_REQUEST
-            )
+        if instance.votes.filter(user=request.user).exists():
+            return Response({"error": "Вы уже проголосовали."}, status=status.HTTP_400_BAD_REQUEST)
 
         vote_value = request.data.get('vote')
-        if vote_value not in ['за', 'против']:
-            return Response(
-                {"error": "Пожалуйста, отправьте свой голос в формате JSON. "
-                          "Например: {'vote': 'за'} или {'vote': 'против'}."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        if vote_value not in ['agree', 'disagree']:
+            return Response({
+                "error": "Пожалуйста, отправьте свой голос в формате JSON. Например: {'vote': 'agree'} или {'vote': 'disagree'}."},
+                status=status.HTTP_400_BAD_REQUEST)
 
-        if vote_value == "за":
+        self._update_vote_counts(instance, vote_value)
+        VoteResult.objects.create(vote=instance, user=request.user, vote_value=vote_value)
+
+        percentage_yes, percentage_no = self._calculate_vote_percentages(instance)
+        return Response({"percentage_yes": percentage_yes, "percentage_no": percentage_no})
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        if request.user.is_authenticated:
+            VoteResult.objects.get_or_create(vote=instance, user=request.user)
+
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+    def _update_vote_counts(self, instance, vote_value):
+        if vote_value == "agree":
             instance.yes_count += 1
-        elif vote_value == "против":
+        elif vote_value == "disagree":
             instance.no_count += 1
         instance.save()
 
-        VoteResult.objects.create(vote=instance, user=request.user, vote_value=vote_value)
-
+    def _calculate_vote_percentages(self, instance):
         total_votes = instance.yes_count + instance.no_count
         if total_votes > 0:
             percentage_yes = (instance.yes_count / total_votes) * 100
@@ -105,19 +155,7 @@ class VoteViewSet(viewsets.ModelViewSet):
         else:
             percentage_yes = 0
             percentage_no = 0
-
-        return Response(
-            {"percentage_yes": percentage_yes, "percentage_no": percentage_no}
-        )
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-
-        if request.user.is_authenticated:
-            VoteView.objects.get_or_create(vote=instance, user=request.user)
-
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data)
+        return percentage_yes, percentage_no
 
 
 class ApartmentHistoryViewSet(viewsets.ModelViewSet):

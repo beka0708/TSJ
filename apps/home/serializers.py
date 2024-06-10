@@ -26,9 +26,6 @@ class FlatSerializers(serializers.ModelSerializer):
         fields = "__all__"
 
 
-
-
-
 class VoteSerializer(serializers.ModelSerializer):
     views_count = serializers.SerializerMethodField()
     description = CKEditor5Field()
@@ -61,15 +58,19 @@ class VoteViewSerializer(serializers.ModelSerializer):
 
 class RequestVoteSerializers(serializers.ModelSerializer):
     description = CKEditor5Field()
+    tsj_id = serializers.IntegerField()
 
     class Meta:
-        model = Request_Vote_News
-        fields = "__all__"
+        model = RequestVoteNews
+        fields = ('title', 'description', 'deadline_date', 'tsj_id')
+
+    def create(self, validated_data):
+        user_id = self.context['user_id']
+        request_vote = RequestVoteNews.objects.create(user_id=user_id, **validated_data)
+        return request_vote
 
 
 class ApartmentHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ApartmentHistory
         fields = '__all__'
-
-

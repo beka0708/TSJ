@@ -9,7 +9,7 @@ from .models import (
     FlatTenant,
     Flat,
     Vote,
-    Request_Vote_News, ApartmentHistory, VoteResult, VoteView,
+    RequestVoteNews, ApartmentHistory, VoteResult, VoteView,
 )
 
 User = get_user_model()
@@ -21,7 +21,9 @@ class FlatOwnerInline(admin.TabularInline):
 
 
 class FlatInline(admin.TabularInline):
-    model = FlatTenant
+    model = Flat
+    fields = ('number', 'get_owner',)
+    readonly_fields = ('number', 'get_owner',)
     extra = 1
 
 
@@ -43,6 +45,7 @@ class HouseAdmin(admin.ModelAdmin):
     )
     search_fields = ("name_block", "address")
     ordering = ("name_block",)
+    inlines = (FlatInline,)
 
 
 @admin.register(Flat)
@@ -100,7 +103,7 @@ class VoteViewAdmin(admin.ModelAdmin):
     viewed_at.short_description = 'Время просмотра'
 
 
-@admin.register(Request_Vote_News)
+@admin.register(RequestVoteNews)
 class RequestVoteAdmin(admin.ModelAdmin):
     list_display = ("title", "created_date")
 

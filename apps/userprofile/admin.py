@@ -11,8 +11,8 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
 
-
 User = get_user_model()
+
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
@@ -87,6 +87,7 @@ class RequestAdmin(admin.ModelAdmin):
 
 admin.site.register(Request, RequestAdmin)
 
+
 # @admin.register(ResidenceCertificate)
 # class ResidenceCertificateAdmin(admin.ModelAdmin):
 #     actions = ['generate_pdf']
@@ -139,7 +140,8 @@ def generate_certificate(pdf, certificate, y_position):
     pdf.drawString(text_indent, y_position - 220, f"Выдана гражданину: {certificate.owner_name}")
 
     # Адрес
-    pdf.drawString(text_indent, y_position - 240, f"в том что он (она) действительно проживает по адресу: {certificate.address}")
+    pdf.drawString(text_indent, y_position - 240,
+                   f"в том что он (она) действительно проживает по адресу: {certificate.address}")
 
     # Разделительная линия
     pdf.setLineWidth(1)
@@ -147,7 +149,8 @@ def generate_certificate(pdf, certificate, y_position):
     pdf.line(text_indent, y_position - 260, 550, y_position - 260)
 
     # ФИО менеджера и дата создания
-    pdf.drawString(text_indent, y_position - 280, f"Справка выдана: {certificate.created_date}, от должностного лица: {certificate.manager}")
+    pdf.drawString(text_indent, y_position - 280,
+                   f"Справка выдана: {certificate.created_date}, от должностного лица: {certificate.manager}")
 
     # Линии для подписи
     pdf.line(text_indent, y_position - 350, 300, y_position - 350)

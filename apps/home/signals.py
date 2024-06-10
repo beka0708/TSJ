@@ -2,9 +2,21 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from .models import FlatOwner, FlatTenant, ApartmentHistory, Vote
+from .models import FlatOwner, FlatTenant, ApartmentHistory, Vote, RequestVoteNews
 from apps.chat.models import Room
 
+
+@receiver(post_save, sender=RequestVoteNews)
+def create_vote(sender, instance, created, **kwargs):
+    if not created:
+
+        if instance.status == "approved":
+            Vote.objects.create(
+                tjs_id=instance.tsj_id,
+                title=instance.title,
+                description=instance.description,
+                deadline=instance.deadline_date
+            )
 
 @receiver(post_save, sender=Vote)
 def create_room_for_vote(sender, instance, created, **kwargs):
