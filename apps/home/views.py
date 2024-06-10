@@ -22,9 +22,10 @@ from rest_framework import filters
 from apps.blogs.models import News
 from django.db.models import Q
 from rest_framework.generics import mixins
+from apps.mixins.mixins import RetrivListViewSet
 
 
-class HouseViewSet(viewsets.ModelViewSet):
+class HouseViewSet(RetrivListViewSet):
     queryset = House.objects.all()
     serializer_class = HouseSerializers
     permission_classes = [IsAdminOrReadOnly]
@@ -36,13 +37,13 @@ class HouseViewSet(viewsets.ModelViewSet):
 #     permission_classes = [IsOwnerOrReadOnly]
 
 
-class FlatTenantViewSet(viewsets.ModelViewSet):
+class FlatTenantViewSet(RetrivListViewSet):
     queryset = FlatTenant.objects.all()
     serializer_class = FlatTenantSerializers
     permission_classes = [IsOwnerOrReadOnly]
 
 
-class FlatViewSet(viewsets.ModelViewSet):
+class FlatViewSet(RetrivListViewSet):
     queryset = Flat.objects.all()
     serializer_class = FlatSerializers
     permission_classes = [IsManagerOrReadOnly]
@@ -158,7 +159,7 @@ class VoteViewSet(
         return percentage_yes, percentage_no
 
 
-class ApartmentHistoryViewSet(viewsets.ModelViewSet):
+class ApartmentHistoryViewSet(RetrivListViewSet):
     queryset = ApartmentHistory.objects.all()
     serializer_class = ApartmentHistorySerializer
 

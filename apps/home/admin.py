@@ -9,7 +9,13 @@ from .models import (
     FlatTenant,
     Flat,
     Vote,
-    RequestVoteNews, ApartmentHistory, VoteResult, VoteView,
+    RequestVoteNews,
+    ApartmentHistory,
+    VoteResult,
+    VoteView,
+    DomKomRole,
+    HouseDeveloper,
+    HousePhoto
 )
 
 User = get_user_model()
@@ -18,6 +24,12 @@ User = get_user_model()
 class FlatOwnerInline(admin.TabularInline):
     model = FlatOwner
     extra = 1
+
+
+admin.site.register(FlatOwner)
+admin.site.register(DomKomRole)
+admin.site.register(HouseDeveloper)
+admin.site.register(HousePhoto)
 
 
 class FlatInline(admin.TabularInline):

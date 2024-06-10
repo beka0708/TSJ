@@ -2,7 +2,22 @@ from rest_framework import serializers
 from .models import *
 
 
+class PhotoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HousePhoto
+        fields = ('photo',)
+
+
+class DeveloperSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HouseDeveloper
+        fields = ('name', 'web_site')
+
+
 class HouseSerializers(serializers.ModelSerializer):
+    photos = PhotoSerializer(many=True, read_only=True)
+    developer = DeveloperSerializer(read_only=True)
+
     class Meta:
         model = House
         fields = "__all__"

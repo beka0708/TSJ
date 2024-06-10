@@ -2,9 +2,11 @@ from django.db import models
 from django_ckeditor_5.fields import CKEditor5Field
 from django.contrib.auth import get_user_model
 from apps.home.models import TSJ
+
 User = get_user_model()
 
 TYPE = {"Новости": "Новости", "Объявления": "Объявления"}
+APPROVE_TYPE = {'approved': 'approved', 'pending': 'pending'}
 
 
 class News(models.Model):
@@ -17,6 +19,7 @@ class News(models.Model):
         auto_now_add=True, null=True, verbose_name="Дата создания"
     )
     update_date = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
+    is_approve = models.CharField(max_length=20, choices=APPROVE_TYPE, default="pending")
 
     class Meta:
         verbose_name = "Новости"

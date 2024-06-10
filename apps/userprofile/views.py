@@ -14,11 +14,12 @@ import random
 from django.utils import timezone
 from datetime import timedelta
 from drf_spectacular.utils import extend_schema
+from apps.mixins.mixins import WithoutDeleteViewSet
 
 User = get_user_model()
 
 
-class ProfileViewSet(viewsets.ModelViewSet):
+class ProfileViewSet(WithoutDeleteViewSet):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     lookup_field = 'id'
@@ -99,7 +100,7 @@ class ConfirmPasswordResetView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class RequestViewSet(viewsets.ModelViewSet):
+class RequestViewSet(WithoutDeleteViewSet):
     queryset = Request.objects.all()
     serializer_class = RequestSerializer
     permission_classes = [IsManagerOrReadOnly]

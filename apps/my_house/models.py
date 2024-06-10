@@ -18,8 +18,8 @@ class DomKom(models.Model):
         return self.title
 
     class Meta:
-        verbose_name = "Мой дом"
-        verbose_name_plural = "Мой дом"
+        verbose_name = "Домком"
+        verbose_name_plural = "Домком"
 
 
 class Photo(models.Model):

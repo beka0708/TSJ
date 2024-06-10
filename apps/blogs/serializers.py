@@ -9,7 +9,7 @@ class NewsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = News
-        fields = '__all__'
+        fields = ('type', 'title', 'description', 'link', 'tsj', 'views_count')
 
     def get_views_count(self, obj):
         return obj.views.count()

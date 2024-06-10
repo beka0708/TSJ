@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
-from phonenumber_field.modelfields import PhoneNumberField
 from django_ckeditor_5.fields import CKEditor5Field
 
 from apps.chat.models import Room
@@ -36,6 +35,8 @@ class House(models.Model):
         verbose_name="Количество квартир"
     )  # квартиры
 
+    developer = models.ForeignKey('HouseDeveloper', on_delete=models.SET_NULL, null=True, blank=True)
+
     def clean(self):
         super().clean()
         if House.objects.filter(name_block=self.name_block).exists():
@@ -47,6 +48,19 @@ class House(models.Model):
 
     def __str__(self):
         return self.name_block
+
+
+class HousePhoto(models.Model):
+    house = models.ForeignKey(House, on_delete=models.CASCADE, related_name='photos')
+    photo = models.ImageField(upload_to='albums/')
+
+
+class DomKomRole(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    houses = models.ManyToManyField(House)
+
+    def __str__(self):
+        return self.user.name
 
 
 class FlatOwner(models.Model):
@@ -116,6 +130,7 @@ class Flat(models.Model):
 
     def get_owner(self):
         return ", ".join(owner.user.name for owner in self.flatowner_set.all())
+
 
 class ApartmentHistory(models.Model):
     """
@@ -222,3 +237,11 @@ class RequestVoteNews(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class HouseDeveloper(models.Model):
+    name = models.CharField(max_length=255)
+    web_site = models.URLField()
+
+    def __str__(self):
+        return self.name

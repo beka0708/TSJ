@@ -5,12 +5,12 @@ from .serializers import NewsSerializer
 from apps.home.permissions import IsManagerOrReadOnly
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+from apps.mixins.mixins import CreateGetListViewSet
 
 
-class NewsViewSet(viewsets.ModelViewSet):
+class NewsViewSet(CreateGetListViewSet):
     queryset = News.objects.all()
     serializer_class = NewsSerializer
-    permission_classes = [IsManagerOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     search_fields = ["title", "description", ]
 
@@ -23,3 +23,5 @@ class NewsViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
+# class NewsRequestsApiView()
