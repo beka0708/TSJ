@@ -1,21 +1,20 @@
 from django.contrib.auth import get_user_model
 from rest_framework import status
-from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from .utils import SendSMS
 from apps.user.models import PasswordReset
 from apps.home.permissions import IsManagerOrReadOnly
-from .models import Profile, Request, ResidenceCertificate
-from .serializers import ProfileSerializer, ChangePasswordSerializer, \
+from .models import Profile, Request
+from .serializers import ProfileSerializer, \
     RequestSerializer, PasswordResetRequestSerializer, PasswordResetConfirmSerializer, ConfirmResetPassCodeSerializer
 from rest_framework.views import APIView
 import random
 from django.utils import timezone
 from datetime import timedelta
 from drf_spectacular.utils import extend_schema
-from apps.mixins.mixins import WithoutDeleteViewSet, RetrivUpdateViewSet
-from django.http import Http404
+from apps.mixins.mixins import WithoutDeleteViewSet
+
 
 User = get_user_model()
 

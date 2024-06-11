@@ -3,12 +3,12 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
 from apps.home.models import RequestVoteNews, House
 from apps.home.serializers import RequestVoteSerializers
-from .models import DomKom, Camera, HelpInfo, Debt
+from .models import Camera, HelpInfo, Debt
 from apps.mixins.mixins import RetrivListViewSet
 from .serializers import (
-    DomKomSerializers, CameraSerializers,
+    CameraSerializers,
     HelpInfoSerializers,
-    DebtSerializer,
+    DebtSerializer
 )
 from apps.home.serializers import HouseSerializers
 from rest_framework.response import Response
@@ -17,6 +17,9 @@ User = get_user_model()
 
 
 class GetMyHouseApiView(APIView):
+    """
+    Retriv current user House info.
+    """
     serializer_class = HouseSerializers
 
     def get(self, request):
