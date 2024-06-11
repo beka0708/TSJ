@@ -14,7 +14,8 @@ import random
 from django.utils import timezone
 from datetime import timedelta
 from drf_spectacular.utils import extend_schema
-from apps.mixins.mixins import WithoutDeleteViewSet
+from apps.mixins.mixins import WithoutDeleteViewSet, RetrivUpdateViewSet
+from django.http import Http404
 
 User = get_user_model()
 
@@ -24,6 +25,28 @@ class ProfileViewSet(WithoutDeleteViewSet):
     serializer_class = ProfileSerializer
     lookup_field = 'id'
     permission_classes = [IsAuthenticated]
+
+
+class CurrentProfileView(APIView):
+    """
+    A view for updating or retrieving the authenticated user's profile.
+    """
+    serializer_class = ProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        profile = request.user.profile
+        serializer = self.serializer_class(profile)
+        return Response(serializer.data)
+
+    def put(self, request):
+        profile = request.user.profile
+        serializer = self.serializer_class(profile, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SendVerificationCodeViewSet(APIView):

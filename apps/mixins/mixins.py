@@ -12,3 +12,7 @@ class CreateGetListViewSet(GenericViewSet, mixins.CreateModelMixin, mixins.ListM
 
 class WithoutDeleteViewSet(CreateGetListViewSet, mixins.UpdateModelMixin):
     pass
+
+
+class RetrivUpdateViewSet(GenericViewSet, mixins.UpdateModelMixin, mixins.RetrieveModelMixin):
+    pass

@@ -5,10 +5,10 @@ from phonenumber_field.serializerfields import PhoneNumberField
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='user.name')
-    email = serializers.EmailField(source='user.email')
-    phone_number = serializers.CharField(source='user.phone_number')
-    address = serializers.CharField(source='user.address')
+    name = serializers.CharField(source='user.name', required=False)
+    email = serializers.EmailField(source='user.email', required=False)
+    phone_number = serializers.CharField(source='user.phone_number', required=False)
+    address = serializers.CharField(source='user.address', required=False)
 
     class Meta:
         model = Profile
@@ -17,11 +17,16 @@ class ProfileSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         user_data = validated_data.pop('user', {})
         user = instance.user
+
         user.name = user_data.get('name', user.name)
         user.email = user_data.get('email', user.email)
         user.phone_number = user_data.get('phone_number', user.phone_number)
         user.address = user_data.get('address', user.address)
         user.save()
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
         instance.save()
         return instance
 
