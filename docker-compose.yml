@@ -11,7 +11,7 @@ services:
       bash -c "python manage.py runserver 0.0.0.0:8000"
     container_name: tsj-app
     ports:
-      - '8001:8000'
+      - '8000:8000'
     restart: always
     env_file:
       - .env
@@ -38,16 +38,16 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
 
-  nginx:
-    image: nginx:latest
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      - static_volume:/usr/src/app/back_static
-      - media_volume:/usr/src/app/back_media
-    depends_on:
-      - api
+#  nginx:
+#    image: nginx:latest
+#    ports:
+#      - "80:80"
+#    volumes:
+#      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+#      - static_volume:/usr/src/app/back_static
+#      - media_volume:/usr/src/app/back_media
+#    depends_on:
+#      - api
 
 volumes:
   postgres_data:

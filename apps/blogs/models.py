@@ -20,6 +20,7 @@ class News(models.Model):
     )
     update_date = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
     is_approve = models.CharField(max_length=20, choices=APPROVE_TYPE, default="pending")
+    from_user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         verbose_name = "Новости"

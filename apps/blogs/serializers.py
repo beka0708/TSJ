@@ -11,5 +11,10 @@ class NewsSerializer(serializers.ModelSerializer):
         model = News
         fields = ('type', 'title', 'description', 'link', 'tsj', 'views_count')
 
+    def create(self, validated_data):
+        user_id = self.context['user_id']
+        request_vote = News.objects.create(from_user_id=user_id, **validated_data)
+        return request_vote
+
     def get_views_count(self, obj):
         return obj.views.count()
