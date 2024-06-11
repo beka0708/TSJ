@@ -102,8 +102,8 @@ class VoteViewSet(
 ):
     queryset = Vote.objects.all()
     serializer_class = VoteSerializer
-    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    # authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication,)
+    # permission_classes = (IsAuthenticated,)
 
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     search_fields = ["title", "description", ]
