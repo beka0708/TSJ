@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket API Documentation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket API Documentation</h1>
+    <h2>Endpoint</h2>
+    <p><code>ws://localhost:8001/ws/notifications/</code></p>
+
+    <h2>Connection (Dart/Flutter)</h2>
+    <p>To establish a WebSocket connection in Dart/Flutter, use the following code:</p>
+    <pre>
+        <code>
+import 'dart:convert';
+import 'dart:io';
+
+void main() {
+  final channel = WebSocket.connect('ws://localhost:8001/ws/notifications/');
+
+  channel.then((WebSocket socket) {
+    socket.listen(
+      (data) {
+        final message = jsonDecode(data);
+        print('Received: ${message['message']}');
+      },
+      onDone: () {
+        print('WebSocket connection closed');
+      },
+      onError: (error) {
+        print('WebSocket error: $error');
+      },
+    );
+
+    socket.add(jsonEncode({'message': 'Hello from Flutter!'}));
+  }).catchError((error) {
+    print('Could not connect to WebSocket: $error');
+  });
+}
+
+    </code></pre>
+
+    <h2>Message Format</h2>
+    <p>Messages sent over the WebSocket should be in JSON format. Below is an example:</p>
+    <pre><code>
+{
+    "message": "This is a notification message"
+}
+    </code></pre>
+
+    <h2>Events</h2>
+    <ul>
+        <li><code>onopen</code>: Triggered when the WebSocket connection is established.</li>
+        <li><code>onmessage</code>: Triggered when a message is received from the server.</li>
+        <li><code>onclose</code>: Triggered when the WebSocket connection is closed.</li>
+        <li><code>onerror</code>: Triggered when an error occurs.</li>
+    </ul>
+</body>
+</html>
