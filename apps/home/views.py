@@ -262,6 +262,7 @@ class FeedHomeView(APIView):
                 'desc': enti.description,
                 'type': 'vote' if isinstance(enti, Vote) else 'news',
                 'date_created': enti.created_date,
+                'view': enti.views.count()
             }
             if new_enti['type'] == 'vote':
                 new_enti['vote_result'] = {'y': enti.yes_count, 'n': enti.no_count}
