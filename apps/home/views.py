@@ -171,9 +171,16 @@ class FeedHomeView(APIView):
         parameters=[
             OpenApiParameter(
                 name='search',
-                description='Search term for filtering results by title',
+                description='Search term for filtering results by title or description',
                 required=False,
                 type=str
+            ),
+            OpenApiParameter(
+                name='type',
+                description='Filter results by type (vote or news)',
+                required=False,
+                type=str,
+                enum=['vote', 'news']
             )
         ],
         responses={
@@ -230,6 +237,8 @@ class FeedHomeView(APIView):
     )
     def get(self, request):
         search_query = request.query_params.get('search', None)
+        type_filter = request.query_params.get('type', None)
+
         vote_list = Vote.objects.all()
         news_list = News.objects.all()
 
@@ -237,7 +246,13 @@ class FeedHomeView(APIView):
             vote_list = vote_list.filter(Q(title__icontains=search_query) | Q(description__icontains=search_query))
             news_list = news_list.filter(Q(title__icontains=search_query) | Q(description__icontains=search_query))
 
-        new_query = list(chain(vote_list, news_list))
+        if type_filter == 'vote':
+            new_query = vote_list
+        elif type_filter == 'news':
+            new_query = news_list
+        else:
+            new_query = list(chain(vote_list, news_list))
+
         response = []
 
         for enti in new_query:
