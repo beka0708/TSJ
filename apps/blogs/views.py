@@ -4,7 +4,6 @@ from .serializers import NewsSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from apps.mixins.mixins import CreateGetListViewSet
-from django.shortcuts import render
 from rest_framework import status
 
 

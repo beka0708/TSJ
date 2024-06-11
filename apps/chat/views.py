@@ -21,7 +21,7 @@ class ChatListCreateView(generics.ListCreateAPIView):
     serializer_class = RoomSerializers
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ['title', 'description']
-    filterset_fields = ['is_archived', 'has_voting']
+    filterset_fields = ['is_archived', 'has_voting', 'is_discussion']
 
 
 class ChatDetailView(generics.RetrieveUpdateDestroyAPIView):

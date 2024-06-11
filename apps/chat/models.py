@@ -11,6 +11,7 @@ class Room(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True, verbose_name="Дата создания")
     is_archived = models.BooleanField(default=False, verbose_name="Архивировать чат")
     has_voting = models.BooleanField(default=False, null=True, verbose_name="Голосование")
+    is_discussion = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Канал"
@@ -36,7 +37,3 @@ class Message(models.Model):
 
     def __str__(self):
         return self.user.name + ": " + self.content
-
-
-
-
