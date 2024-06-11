@@ -16,3 +16,6 @@ class ListNotificationsViews(ListAPIView):
 
 def websocket_docs(request):
     return render(request, 'websocket_docs.html')
+
+def test_page(request):
+    return render(request, 'noti.html')

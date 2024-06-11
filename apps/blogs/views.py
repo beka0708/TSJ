@@ -35,5 +35,4 @@ class NewsViewSet(CreateGetListViewSet):
 # class NewsRequestsApiView()
 
 
-def test_page(request):
-    return render(request, 'noti.html')
+
