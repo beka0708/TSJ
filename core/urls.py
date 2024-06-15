@@ -9,7 +9,7 @@ from drf_spectacular.views import (
 )
 from apps.chat.views import chat_room, room_list
 
-urlpatterns = [
+urlpatterns = [ 
     path("admin/", admin.site.urls),
     path("api/home/", include("apps.home.urls")),
     path("api/auth/", include("apps.user.urls")),

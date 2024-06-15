@@ -4,6 +4,9 @@ from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from .models import FlatOwner, FlatTenant, ApartmentHistory, Vote, RequestVoteNews
 from apps.chat.models import Room
+from apps.notifications.models import ToAdminNotification, Notification
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 
 @receiver(post_save, sender=RequestVoteNews)
@@ -11,12 +14,31 @@ def create_vote(sender, instance, created, **kwargs):
     if not created:
 
         if instance.status == "approved":
+            user = instance.user
+            message = f'Ваш чат было оплубликовано.'
+            # Создание записи уведомления в базе данных
+            Notification.objects.create(user=user, message=message)
+            admin_notification = ToAdminNotification.objects.filter(
+                link_to=f"/admin/home/requestvotenews/{instance.id}/change/").first()
+            if admin_notification:
+                admin_notification.read = True
+                admin_notification.save()
+            # Отправка уведомления по WebSocket
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                f'notifications_{user.id}',
+                {
+                    'type': 'send_notification',
+                    'message': message,
+                }
+            )
             Vote.objects.create(
                 tjs_id=instance.tsj_id,
                 title=instance.title,
                 description=instance.description,
                 deadline=instance.deadline_date
             )
+
 
 @receiver(post_save, sender=Vote)
 def create_room_for_vote(sender, instance, created, **kwargs):
@@ -30,6 +52,25 @@ def create_room_for_vote(sender, instance, created, **kwargs):
         )
         instance.room = room
         instance.save()
+
+
+@receiver(post_save, sender=RequestVoteNews)
+def send_news(sender, instance, created, **kwargs):
+    if created:
+        message = f'Новый чат: {instance.title}'
+        ToAdminNotification.objects.create(
+            from_user=instance.user,
+            message=message,
+            link_to=f"/admin/home/requestvotenews/{instance.id}/change/"
+        )
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            'notifications',
+            {
+                'type': 'send_notification',
+                'message': message
+            }
+        )
 
 
 @receiver(post_save, sender=FlatOwner)

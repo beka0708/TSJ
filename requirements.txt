@@ -73,3 +73,4 @@ urllib3==2.2.1
 xmltodict==0.13.0
 zope.interface==6.4
 freedom-pay==0.0.4
+django-jet
