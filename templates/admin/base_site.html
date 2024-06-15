@@ -1,0 +1,15 @@
+{% extends 'admin/base.html' %}
+{% block userlinks %}
+<div id="notification-bell" class="bell">
+    <i class="fas fa-bell"></i>
+    <span class="badge">3</span>
+</div>
+<div id="notifications">
+    <ul>
+        <li>Уведомление 1</li>
+        <li>Уведомление 2</li>
+        <li>Уведомление 3</li>
+    </ul>
+</div>
+{{ block.super }}
+{% endblock %}

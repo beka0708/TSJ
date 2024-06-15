@@ -2,7 +2,6 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-
 class NotificationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.user = self.scope["user"]
@@ -10,6 +9,10 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             self.group_name = f'notifications_{self.user.id}'
             await self.channel_layer.group_add(
                 self.group_name,
+                self.channel_name
+            )
+            await self.channel_layer.group_add(
+                'notifications',  # Подключение к общей группе
                 self.channel_name
             )
             await self.accept()
@@ -20,6 +23,10 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         if self.user.is_authenticated:
             await self.channel_layer.group_discard(
                 self.group_name,
+                self.channel_name
+            )
+            await self.channel_layer.group_discard(
+                'notifications',  # Отключение от общей группы
                 self.channel_name
             )
 
