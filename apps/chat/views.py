@@ -1,7 +1,7 @@
 from rest_framework import generics, filters
 from .models import Room, Message
 from django_filters.rest_framework import DjangoFilterBackend
-from apps.chat.serializers import RoomSerializers, MessageSerializers
+from apps.chat.serializers import RoomSerializers, MessageSerializers, RetrivRoomSerializer
 from django.shortcuts import render, get_object_or_404
 
 
@@ -27,6 +27,11 @@ class ChatListCreateView(generics.ListCreateAPIView):
 class ChatDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Room.objects.all()
     serializer_class = RoomSerializers
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET' and self.kwargs.get('pk', None) is not None:
+            return RetrivRoomSerializer
+        return RoomSerializers
 
 
 class MessageListCreateView(generics.ListCreateAPIView):

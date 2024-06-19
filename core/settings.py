@@ -410,7 +410,7 @@ UNFOLD = {
 
     "SIDEBAR": {
         "show_search": True,  # Поиск по приложениям и моделям
-        "show_all_applications": True,  # Выпадающий список со всеми приложениями и моделями
+        "show_all_applications": False,  # Выпадающий список со всеми приложениями и моделями
         "navigation": [
             {
                 "title": _(""),
@@ -485,6 +485,7 @@ UNFOLD = {
     "SCRIPTS": [
         lambda request: static("js/custom-script.js"),  # Подключение кастомных скриптов
     ],
+    "DASHBOARD_CALLBACK": "apps.blogs.views.dashboard_callback"
 }
 
 

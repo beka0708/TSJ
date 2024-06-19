@@ -1,11 +1,15 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin, TabularInline
 from .models import DomKom, HelpInfo, Camera, \
-     Debt, Payment, Photo
+    Debt, Payment, Photo
 
-admin.site.register(Camera)
 admin.site.register(Payment)
 admin.site.register(Debt)
+
+
+@admin.register(Camera)
+class DomKomAdmin(ModelAdmin):
+    pass
 
 
 class DomKomPhotoInline(TabularInline):
