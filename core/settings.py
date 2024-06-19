@@ -61,7 +61,8 @@ INSTALLED_APPS = (
             "unfold.contrib.import_export",  # optional, if django-import-export package is used
             "unfold.contrib.guardian",  # optional, if django-guardian package is used
             "unfold.contrib.simple_history",  # optional, if django-simple-history package is used
-
+            'django_static_jquery_ui',
+            'django_tabbed_changeform_admin',
             "django.contrib.admin",
             "django.contrib.auth",
             "django.contrib.contenttypes",
@@ -419,6 +420,7 @@ UNFOLD = {
                         "title": _("Главная"),
                         "icon": "dashboard",  # Иконка из набора: https://fonts.google.com/icons
                         "link": reverse_lazy("admin:index"),
+                        "badge": "chat.badge_callback",
                         "permission": lambda request: request.user.is_superuser,
                     },
 
@@ -463,26 +465,13 @@ UNFOLD = {
                         "title": _("Уведомление"),
                         "icon": "notifications",  # Иконка из набора: https://fonts.google.com/icons
                         "link": reverse_lazy("admin:notifications_toadminnotification_changelist"),
+                        "badge": "0",
                         "permission": lambda request: request.user.is_superuser,
                     },
                 ],
             },
         ],
     },
-
-    "TABS": [
-        {
-            "models": [
-                "blogs.news",  # Укажите модель в формате "app_label.model_name"
-            ],
-            "items": [
-                {
-                    "title": _("Новости"),
-                    "link": reverse_lazy("admin:blogs_news_changelist"),
-                },
-            ],
-        },
-    ],
 
     "LOGIN": {
         "image": lambda request: static("images/login-bg.jpg"),  # Путь к изображению фона на странице входа
@@ -497,3 +486,7 @@ UNFOLD = {
         lambda request: static("js/custom-script.js"),  # Подключение кастомных скриптов
     ],
 }
+
+
+def badge_callback(request):
+    return 3

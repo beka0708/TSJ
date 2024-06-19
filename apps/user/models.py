@@ -110,7 +110,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     @classmethod
     def get_users_by_tsj(cls, tsj_id):
-        users = cls.objects.filter(flatowner__id=tsj_id)
+        users = cls.objects.filter(flatowner__tsj__id=tsj_id)
+        return users
+
+    @classmethod
+    def get_tenant_users(cls, tsj_id, **kwargs):
+        users = cls.objects.filter(flattenant__tsj__id=tsj_id, **kwargs)
         return users
 
     class Meta:

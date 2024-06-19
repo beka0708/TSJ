@@ -1,10 +1,10 @@
 from django.contrib import admin
 from .models import News, NewsView
 from unfold.admin import ModelAdmin
-from unfold.contrib.inlines.admin import NonrelatedTabularInline
+from unfold.contrib.inlines.admin import TabularInline
 
 
-class NewsViewInline(NonrelatedTabularInline):
+class NewsViewInline(TabularInline):
     model = NewsView
     extra = 0
 

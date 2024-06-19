@@ -10,6 +10,7 @@ class RoomAdmin(ModelAdmin):
     search_fields = ('title', 'description')
     ordering = ('-created_at',)
     actions = ['archive_rooms', 'unarchive_rooms']
+    autocomplete_fields = ['participants']
 
     def archive_rooms(self, request, queryset):
         queryset.update(is_archived=True)
@@ -25,7 +26,7 @@ class RoomAdmin(ModelAdmin):
 admin.site.register(Room, RoomAdmin)
 
 
-class MessageAdmin(admin.ModelAdmin):
+class MessageAdmin(ModelAdmin):
     list_display = ('content', 'user', 'room', 'timestamp')
     list_filter = ('room', 'timestamp')
     search_fields = ('content', 'user__name')  # Поиск по содержимому сообщения и имени пользователя
