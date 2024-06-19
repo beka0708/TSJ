@@ -3,7 +3,6 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django_ckeditor_5.fields import CKEditor5Field
 
-from apps.chat.models import Room
 
 User = get_user_model()
 
@@ -161,7 +160,7 @@ class Vote(models.Model):
     deadline = models.DateTimeField(verbose_name="Конец голосование")
     yes_count = models.IntegerField(default=0, verbose_name='Количество ответов "за')
     no_count = models.IntegerField(default=0, verbose_name='Количество ответов "нет')
-    room = models.OneToOneField(Room, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Канал обсуждения")
+    room = models.OneToOneField("chat.Room", on_delete=models.CASCADE, null=True, blank=True, verbose_name="Канал обсуждения")
 
     class Meta:
         verbose_name = "Голосование"

@@ -14,7 +14,7 @@ class RoomSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = Room
-        fields = ('title', 'description', 'created_at', 'vote', 'is_archived', 'has_voting', 'is_discussion')
+        fields = ('title', 'description', 'created_at', 'vote', 'is_archived', 'has_voting', 'is_discussion', 'tsj')
 
 
 class MessageSerializers(serializers.ModelSerializer):

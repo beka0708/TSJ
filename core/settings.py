@@ -2,6 +2,9 @@ import os
 from datetime import timedelta
 from pathlib import Path
 from decouple import config
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
+from django.templatetags.static import static
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -51,7 +54,14 @@ THIRD_PARTY_APPS = [
 INSTALLED_APPS = (
         [
             "daphne",
-            "jazzmin",
+            "unfold",  # before django.contrib.admin
+            "unfold.contrib.filters",  # optional, if special filters are needed
+            "unfold.contrib.forms",  # optional, if special form elements are needed
+            "unfold.contrib.inlines",  # optional, if special inlines are needed
+            "unfold.contrib.import_export",  # optional, if django-import-export package is used
+            "unfold.contrib.guardian",  # optional, if django-guardian package is used
+            "unfold.contrib.simple_history",  # optional, if django-simple-history package is used
+
             "django.contrib.admin",
             "django.contrib.auth",
             "django.contrib.contenttypes",
@@ -290,168 +300,6 @@ CKEDITOR_5_CONFIGS = {
     },
 }
 
-
-JAZZMIN_UI_TWEAKS = {
-    "navbar_small_text": False,
-    "footer_small_text": False,
-    "body_small_text": False,
-    "brand_small_text": False,
-    "brand_colour": False,
-    "accent": "accent-primary",
-    "navbar": "navbar-white navbar-light",
-    "no_navbar_border": False,
-    "navbar_fixed": False,
-    "layout_boxed": False,
-    "footer_fixed": False,
-    "sidebar_fixed": True,
-    "sidebar": "sidebar-dark-primary",
-    "sidebar_nav_small_text": False,
-    "sidebar_disable_expand": False,
-    "sidebar_nav_child_indent": False,
-    "sidebar_nav_compact_style": True,
-    "sidebar_nav_legacy_style": False,
-    "sidebar_nav_flat_style": True,
-    "theme": "default",
-    "dark_mode_theme": None,
-    "button_classes": {
-        "primary": "btn-primary",
-        "secondary": "btn-secondary",
-        "info": "btn-info",
-        "warning": "btn-warning",
-        "danger": "btn-danger",
-        "success": "btn-success"
-    },
-    "actions_sticky_top": False
-}
-
-JAZZMIN_SETTINGS = {
-    # title of the window (Will default to current_admin_site.site_title if absent or None)
-    "site_title": "Library Admin",
-
-    # Title on the login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
-    "site_header": "Library",
-
-    # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
-    "site_brand": "Library",
-
-    # Logo to use for your site, must be present in static files, used for brand on top left
-    "site_logo": "books/img/logo.png",
-
-    # Logo to use for your site, must be present in static files, used for login form logo (defaults to site_logo)
-    "login_logo": None,
-
-    # Logo to use for login form in dark themes (defaults to login_logo)
-    "login_logo_dark": None,
-
-    # CSS classes that are applied to the logo above
-    "site_logo_classes": "img-circle",
-
-    # Relative path to a favicon for your site, will default to site_logo if absent (ideally 32x32 px)
-    "site_icon": None,
-
-    # Welcome text on the login screen
-    "welcome_sign": "Welcome to the library",
-
-    # Copyright on the footer
-    "copyright": "Acme Library Ltd",
-
-    # List of model admins to search from the search bar, search bar omitted if excluded
-    # If you want to use a single search field you dont need to use a list, you can use a simple string
-
-
-    # Field name on user model that contains avatar ImageField/URLField/Charfield or a callable that receives the user
-    "user_avatar": None,
-
-    ############
-    # Top Menu #
-    ############
-
-    # Links to put along the top menu
-
-
-    #############
-    # User Menu #
-    #############
-
-    # Additional links to include in the user menu on the top right ("app" url type is not allowed)
-    "usermenu_links": [
-        {"name": "Support", "url": "https://github.com/farridav/django-jazzmin/issues", "new_window": True},
-        {"model": "auth.user"}
-    ],
-
-    #############
-    # Side Menu #
-    #############
-
-    # Whether to display the side menu
-    "show_sidebar": True,
-
-    # Whether to aut expand the menu
-    "navigation_expanded": True,
-
-    # Hide these apps when generating side menu e.g (auth)
-    "hide_apps": [],
-
-    # Hide these models when generating side menu (e.g auth.user)
-    "hide_models": [],
-
-    # List of apps (and/or models) to base side menu ordering off of (does not need to contain all apps/models)
-    "order_with_respect_to": ["auth", "apps.blogs.news", "books.author", "books.book"],
-
-    # Custom links to append to app groups, keyed on app name
-    "custom_links": {
-        "books": [{
-            "name": "Make Messages",
-            "url": "make_messages",
-            "icon": "fas fa-comments",
-            "permissions": ["books.view_book"]
-        }]
-    },
-
-    # Custom icons for side menu apps/models See https://fontawesome.com/icons?d=gallery&m=free&v=5.0.0,5.0.1,5.0.10,5.0.11,5.0.12,5.0.13,5.0.2,5.0.3,5.0.4,5.0.5,5.0.6,5.0.7,5.0.8,5.0.9,5.1.0,5.1.1,5.2.0,5.3.0,5.3.1,5.4.0,5.4.1,5.4.2,5.13.0,5.12.0,5.11.2,5.11.1,5.10.0,5.9.0,5.8.2,5.8.1,5.7.2,5.7.1,5.7.0,5.6.3,5.5.0,5.4.2
-    # for the full list of 5.13.0 free icon classes
-    "icons": {
-        "auth": "fas fa-users-cog",
-        "auth.user": "fas fa-user",
-        "auth.Group": "fas fa-users",
-    },
-    # Icons that are used when one is not manually specified
-    "default_icon_parents": "fas fa-chevron-circle-right",
-    "default_icon_children": "fas fa-circle",
-
-    #################
-    # Related Modal #
-    #################
-    # Use modals instead of popups
-    "related_modal_active": False,
-
-    #############
-    # UI Tweaks #
-    #############
-    # Relative paths to custom CSS/JS scripts (must be present in static files)
-    "custom_css": "custom_jazzmin/main.css",
-    "custom_js": "custom_jazzmin/main.js",
-    # Whether to link font from fonts.googleapis.com (use custom_css to supply font otherwise)
-    "use_google_fonts_cdn": True,
-    # Whether to show the UI customizer on the sidebar
-    "show_ui_builder": False,
-
-    ###############
-    # Change view #
-    ###############
-    # Render out the change view as a single form, or in tabs, current options are
-    # - single
-    # - horizontal_tabs (default)
-    # - vertical_tabs
-    # - collapsible
-    # - carousel
-    "changeform_format": "horizontal_tabs",
-    # override change forms on a per modeladmin basis
-    "changeform_format_overrides": {"auth.user": "collapsible", "auth.group": "vertical_tabs"},
-    # Add a language dropdown into the admin
-    "language_chooser": False,
-}
-
 LANGUAGE_CODE = "ru"
 
 TIME_ZONE = "Asia/Bishkek"
@@ -506,4 +354,146 @@ SIMPLE_JWT = {
     "JSON_ENCODER": None,
     "JWK_URL": None,
     "LEEWAY": 0,
+}
+
+from django.urls import reverse_lazy
+from django.templatetags.static import static
+from django.utils.translation import gettext_lazy as _
+
+UNFOLD = {
+    "SITE_TITLE": "TCЖ",
+    "SITE_HEADER": "TCЖ",
+    "SITE_URL": "/",
+    "SITE_SYMBOL": "speed",  # Символ из набора иконок
+    "SHOW_HISTORY": True,  # Показать/скрыть кнопку "History"
+    "SHOW_VIEW_ON_SITE": True,  # Показать/скрыть кнопку "View on site"
+
+    "COLORS": {
+        "primary": {
+            "50": "250 245 255",
+            "100": "243 232 255",
+            "200": "233 213 255",
+            "300": "216 180 254",
+            "400": "192 132 252",
+            "500": "168 85 247",
+            "600": "147 51 234",
+            "700": "126 34 206",
+            "800": "107 33 168",
+            "900": "88 28 135",
+            "950": "59 7 100",
+        },
+        "secondary": {
+            "50": "240 248 255",
+            "100": "225 245 254",
+            "200": "205 230 253",
+            "300": "175 210 251",
+            "400": "130 180 249",
+            "500": "85 150 247",
+            "600": "51 120 235",
+            "700": "34 100 210",
+            "800": "33 90 180",
+            "900": "28 75 150",
+            "950": "7 50 100",
+        },
+    },
+
+    "EXTENSIONS": {
+        "modeltranslation": {
+            "flags": {
+                "en": "🇬🇧",
+                "fr": "🇫🇷",
+                "nl": "🇧🇪",
+            },
+        },
+    },
+
+    "SIDEBAR": {
+        "show_search": True,  # Поиск по приложениям и моделям
+        "show_all_applications": True,  # Выпадающий список со всеми приложениями и моделями
+        "navigation": [
+            {
+                "title": _(""),
+                "separator": True,  # Разделитель
+                "items": [
+                    {
+                        "title": _("Главная"),
+                        "icon": "dashboard",  # Иконка из набора: https://fonts.google.com/icons
+                        "link": reverse_lazy("admin:index"),
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+
+                ],
+            },
+            {
+                "title": _(""),
+                "separator": True,  # Разделитель
+                "items": [
+
+                    {
+                        "title": _("Пользователи"),
+                        "icon": "people",  # Иконка из набора: https://fonts.google.com/icons
+                        "link": reverse_lazy("admin:user_customuser_changelist"),
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    {
+                        "title": _("Новости"),
+                        "icon": "article",  # Иконка из набора: https://fonts.google.com/icons
+                        "link": reverse_lazy("admin:blogs_news_changelist"),
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    {
+                        "title": _("Чаты"),
+                        "icon": "chat",  # Иконка из набора: https://fonts.google.com/icons
+                        "link": reverse_lazy("admin:chat_room_changelist"),
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    {
+                        "title": _("ТСЖ"),
+                        "icon": "apartment",  # Иконка из набора: https://fonts.google.com/icons
+                        "link": reverse_lazy("admin:home_tsj_changelist"),
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    {
+                        "title": _("Камеры"),
+                        "icon": "videocam",  # Иконка из набора: https://fonts.google.com/icons
+                        "link": reverse_lazy("admin:my_house_camera_changelist"),
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    {
+                        "title": _("Уведомление"),
+                        "icon": "notifications",  # Иконка из набора: https://fonts.google.com/icons
+                        "link": reverse_lazy("admin:notifications_toadminnotification_changelist"),
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                ],
+            },
+        ],
+    },
+
+    "TABS": [
+        {
+            "models": [
+                "blogs.news",  # Укажите модель в формате "app_label.model_name"
+            ],
+            "items": [
+                {
+                    "title": _("Новости"),
+                    "link": reverse_lazy("admin:blogs_news_changelist"),
+                },
+            ],
+        },
+    ],
+
+    "LOGIN": {
+        "image": lambda request: static("images/login-bg.jpg"),  # Путь к изображению фона на странице входа
+        "redirect_after": lambda request: reverse_lazy("admin:index"),  # Перенаправление после входа
+    },
+
+    "STYLES": [
+        lambda request: static("css/custom-style.css"),  # Подключение кастомных стилей
+    ],
+
+    "SCRIPTS": [
+        lambda request: static("js/custom-script.js"),  # Подключение кастомных скриптов
+    ],
 }

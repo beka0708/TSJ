@@ -105,6 +105,14 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         if not re.match(r'^[а-яА-ЯёЁa-zA-Z\s]+$', self.name):
             raise ValidationError("Имя должно содержать только буквы.")
 
+    def get_fat_owner(self):
+        return self.fatowner.all()
+
+    @classmethod
+    def get_users_by_tsj(cls, tsj_id):
+        users = cls.objects.filter(flatowner__id=tsj_id)
+        return users
+
     class Meta:
         verbose_name = "Аккаунт"
         verbose_name_plural = "Аккаунты"

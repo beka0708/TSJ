@@ -1,9 +1,10 @@
 from django.contrib import admin
 
 from .models import Message, Room
+from unfold.admin import ModelAdmin
 
 
-class RoomAdmin(admin.ModelAdmin):
+class RoomAdmin(ModelAdmin):
     list_display = ('title', 'description', 'created_at', 'is_archived', 'has_voting')
     list_filter = ('is_archived', 'has_voting')
     search_fields = ('title', 'description')
@@ -12,10 +13,12 @@ class RoomAdmin(admin.ModelAdmin):
 
     def archive_rooms(self, request, queryset):
         queryset.update(is_archived=True)
+
     archive_rooms.short_description = "Archive selected rooms"
 
     def unarchive_rooms(self, request, queryset):
         queryset.update(is_archived=False)
+
     unarchive_rooms.short_description = "Unarchive selected rooms"
 
 

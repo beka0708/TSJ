@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.utils.html import format_html
+from unfold.admin import ModelAdmin
 
 from .models import (
     TSJ,
@@ -40,13 +41,13 @@ class FlatInline(admin.TabularInline):
 
 
 @admin.register(TSJ)
-class TSJAdmin(admin.ModelAdmin):
+class TSJAdmin(ModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
 
 
 @admin.register(House)
-class HouseAdmin(admin.ModelAdmin):
+class HouseAdmin(ModelAdmin):
     list_display = (
         "name_block",
         "address",
@@ -61,7 +62,7 @@ class HouseAdmin(admin.ModelAdmin):
 
 
 @admin.register(Flat)
-class FlatAdmin(admin.ModelAdmin):
+class FlatAdmin(ModelAdmin):
     list_display = (
         "number",
         "house",
@@ -77,7 +78,7 @@ class FlatAdmin(admin.ModelAdmin):
 
 
 @admin.register(FlatTenant)
-class FlatTenantAdmin(admin.ModelAdmin):
+class FlatTenantAdmin(ModelAdmin):
     list_display = ("user", "flat")
     search_fields = ("user__username",)
 
@@ -88,7 +89,7 @@ class VoteResultInline(admin.TabularInline):
 
 
 @admin.register(Vote)
-class VoteAdmin(admin.ModelAdmin):
+class VoteAdmin(ModelAdmin):
     list_display = ('title', 'tjs', 'created_date', 'deadline', 'yes_count', 'no_count', 'room_link')
     list_filter = ('tjs', 'created_date', 'deadline')
     search_fields = ('title',)
@@ -103,7 +104,7 @@ class VoteAdmin(admin.ModelAdmin):
 
 
 @admin.register(VoteView)
-class VoteViewAdmin(admin.ModelAdmin):
+class VoteViewAdmin(ModelAdmin):
     list_display = ('vote', 'user', 'viewed_at')  # Поля для отображения в списке
     list_filter = ('vote', 'user')  # Фильтры для списка
     search_fields = ('vote__title', 'user__username')  # Поиск по заголовку голосования и имени пользователя
@@ -116,11 +117,11 @@ class VoteViewAdmin(admin.ModelAdmin):
 
 
 @admin.register(RequestVoteNews)
-class RequestVoteAdmin(admin.ModelAdmin):
+class RequestVoteAdmin(ModelAdmin):
     list_display = ("title", "created_date")
 
 
-class ApartmentHistoryAdmin(admin.ModelAdmin):
+class ApartmentHistoryAdmin(ModelAdmin):
     list_display = ('flat', 'owner', 'get_tenant_names', 'change_date', 'description')
     list_filter = ('flat', 'owner', 'change_date')
     search_fields = ('description', 'flat__number', 'owner__user__name', 'tenant__user__name')

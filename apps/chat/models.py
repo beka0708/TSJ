@@ -1,4 +1,4 @@
-from django.utils.text import slugify
+from apps.home.models import TSJ
 from django.contrib.auth import get_user_model
 from django.db import models
 
@@ -12,6 +12,8 @@ class Room(models.Model):
     is_archived = models.BooleanField(default=False, verbose_name="Архивировать чат")
     has_voting = models.BooleanField(default=False, null=True, verbose_name="Голосование")
     is_discussion = models.BooleanField(default=False)
+    participants = models.ManyToManyField(User)
+    tsj = models.ForeignKey(TSJ, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         verbose_name = "Канал"
