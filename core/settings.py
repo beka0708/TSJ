@@ -408,7 +408,7 @@ UNFOLD = {
 
     "SIDEBAR": {
         "show_search": True,  # Поиск по приложениям и моделям
-        "show_all_applications": False,  # Выпадающий список со всеми приложениями и моделями
+        "show_all_applications": True,  # Выпадающий список со всеми приложениями и моделями
         "navigation": [
             {
                 "title": _(""),
@@ -484,6 +484,13 @@ UNFOLD = {
                         "title": _("Запрос на голосование"),
                         "icon": "how_to_vote",  # Иконка из набора: https://fonts.google.com/icons
                         "link": reverse_lazy("admin:home_requestvotenews_changelist"),
+                        # "badge": "0",
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+{
+                        "title": _("Дома"),
+                        "icon": "how_to_vote",  # Иконка из набора: https://fonts.google.com/icons
+                        "link": reverse_lazy("admin:home_house_changelist"),
                         # "badge": "0",
                         "permission": lambda request: request.user.is_superuser,
                     },
