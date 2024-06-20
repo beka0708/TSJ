@@ -9,7 +9,7 @@ class NewsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = News
-        fields = ('type', 'title', 'description', 'link', 'tsj', 'views_count')
+        fields = ('id', 'type', 'title', 'description', 'link', 'tsj', 'views_count')
 
     def create(self, validated_data):
         user_id = self.context['user_id']
