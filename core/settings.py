@@ -487,7 +487,7 @@ UNFOLD = {
                         # "badge": "0",
                         "permission": lambda request: request.user.is_superuser,
                     },
-{
+                    {
                         "title": _("Дома"),
                         "icon": "how_to_vote",  # Иконка из набора: https://fonts.google.com/icons
                         "link": reverse_lazy("admin:home_house_changelist"),

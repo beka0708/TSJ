@@ -12,9 +12,13 @@ from rest_framework.views import APIView
 import random
 from django.utils import timezone
 from datetime import timedelta
-from drf_spectacular.utils import extend_schema
-from apps.mixins.mixins import WithoutDeleteViewSet
 
+from apps.mixins.mixins import WithoutDeleteViewSet
+from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema
+
+from rest_framework.decorators import action
+from apps.home.models import TSJ
 
 User = get_user_model()
 
@@ -24,6 +28,24 @@ class ProfileViewSet(WithoutDeleteViewSet):
     serializer_class = ProfileSerializer
     lookup_field = 'id'
     permission_classes = [IsAuthenticated]
+
+    @action(detail=True, methods=['post'])
+    def switch(self, request, pk=None):
+        tsj = self.get_object()
+        request.user.profile.current_tsj = tsj
+        request.user.profile.save()
+        return Response({'status': 'current tsj switched'}, status=status.HTTP_200_OK)
+
+
+class SwitchCurrentApiView(APIView):
+
+    def get(self, request, pk):
+        tsj = get_object_or_404(TSJ, pk=pk)
+        profile = request.user.profile
+        profile.current_tsj = tsj
+        profile.save()
+
+        return Response({'status': 'current tsj switched'}, status=status.HTTP_200_OK)
 
 
 class CurrentProfileView(APIView):

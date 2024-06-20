@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from .views import CurrentProfileView, RequestViewSet, \
-    SendVerificationCodeViewSet, ConfirmPasswordResetView, CodeConfirmView
+    SendVerificationCodeViewSet, ConfirmPasswordResetView, CodeConfirmView, SwitchCurrentApiView
 
 router = DefaultRouter()
 
@@ -13,5 +13,6 @@ urlpatterns = [
     path("reset-password/", ConfirmPasswordResetView.as_view()),
     path("confirm-reset-password-code/", CodeConfirmView.as_view()),
     path("current/", CurrentProfileView.as_view()),
+    path("current/switch/tsj/<int:pk>", SwitchCurrentApiView.as_view()),
     path("", include(router.urls)),
 ]

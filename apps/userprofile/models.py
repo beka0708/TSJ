@@ -13,6 +13,7 @@ class Profile(models.Model):
                                 verbose_name="Пользователь", help_text="Чей профиль")
     cover = models.ImageField(upload_to='avatars/', null=True, blank=True,
                               verbose_name="Фото", default='avatars/default_avatar')
+    current_tsj = models.ForeignKey(TSJ, on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
         verbose_name = "Профиль"
@@ -86,5 +87,3 @@ class ResidenceCertificate(models.Model):
 
     def __str__(self):
         return f"Справка для {self.owner_name}"
-
-
