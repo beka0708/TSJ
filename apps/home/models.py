@@ -56,6 +56,7 @@ class HousePhoto(models.Model):
 class DomKomRole(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     houses = models.ManyToManyField(House)
+    tsj = models.ForeignKey(TSJ, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.user.name

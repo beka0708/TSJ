@@ -95,3 +95,10 @@ class ApartmentHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ApartmentHistory
         fields = '__all__'
+
+
+class TSJSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TSJ
+        fields = '__all__'
+

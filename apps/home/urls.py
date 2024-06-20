@@ -9,7 +9,7 @@ from .views import (
     ListDeadLineApiView,
     VoteViewSet,
     FeedHomeView,
-    RequestVoteViewSet, ApartmentHistoryViewSet,
+    RequestVoteViewSet, ApartmentHistoryViewSet, ListTSJView
 )
 
 router = DefaultRouter()
@@ -22,4 +22,5 @@ urlpatterns = [
     path("", include(router.urls)),
     path("feed/", FeedHomeView.as_view()),
     path("deadlines/", ListDeadLineApiView.as_view()),
+    path("tsj/", ListTSJView.as_view()),
 ]

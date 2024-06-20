@@ -11,6 +11,7 @@ from .serializers import (
     HouseSerializers,
     FlatTenantSerializers,
     FlatSerializers,
+    TSJSerializer
 )
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiResponse, OpenApiParameter, extend_schema_view, \
     inline_serializer
@@ -28,10 +29,9 @@ class HouseViewSet(RetrivListViewSet):
     permission_classes = [IsAdminOrReadOnly]
 
 
-# class FlatOwnerViewSet(viewsets.ModelViewSet):
-#     queryset = FlatOwner.objects.all()
-#     serializer_class = FlatOwnerSerializers
-#     permission_classes = [IsOwnerOrReadOnly]
+class ListTSJView(generics.ListAPIView):
+    queryset = TSJ.objects.all()
+    serializer_class = TSJSerializer
 
 
 class FlatTenantViewSet(RetrivListViewSet):

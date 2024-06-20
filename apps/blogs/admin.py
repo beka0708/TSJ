@@ -2,6 +2,7 @@ from django.contrib import admin
 from .models import News, NewsView
 from unfold.admin import ModelAdmin
 from unfold.contrib.inlines.admin import TabularInline
+from apps.home.models import DomKomRole
 
 
 class NewsViewInline(TabularInline):
@@ -29,6 +30,16 @@ class NewsAdmin(ModelAdmin):
     list_filter = ("tsj", "type")
     readonly_fields = ("created_date", "update_date")
     inlines = [NewsViewInline]
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        user = request.user
+        if user.role == 'MANAGER':
+            manager = DomKomRole.objects.filter()
+            if user.groups.filter(name='домком').exists():
+                return qs.filter(number=8)
+
+        return qs
 
     def views_count(self, obj):
         return obj.views.count()
