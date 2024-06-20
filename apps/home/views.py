@@ -1,8 +1,7 @@
 from django.utils import timezone
 from rest_framework import status
 from rest_framework import viewsets, generics
-from rest_framework.authentication import BasicAuthentication
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly, IsManagerOrReadOnly
@@ -10,13 +9,11 @@ from itertools import chain
 from .serializers import *
 from .serializers import (
     HouseSerializers,
-    FlatOwnerSerializers,
     FlatTenantSerializers,
     FlatSerializers,
 )
 from drf_spectacular.utils import extend_schema, OpenApiExample, OpenApiResponse, OpenApiParameter, extend_schema_view, \
     inline_serializer
-from apps.payment.views import CsrfExemptSessionAuthentication
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from apps.blogs.models import News
@@ -273,3 +270,8 @@ class FeedHomeView(APIView):
             response.append(new_enti)
 
         return Response(response)
+
+
+class ListDeadLineApiView(generics.ListAPIView):
+    queryset = DeadLine.objects.all()
+    serializer_class = DeadLineSerializer

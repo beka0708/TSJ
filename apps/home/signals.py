@@ -36,19 +36,18 @@ def create_vote(sender, instance, created, **kwargs):
                 tjs_id=instance.tsj_id,
                 title=instance.title,
                 description=instance.description,
-                deadline=instance.deadline_date
+                deadline_id=instance.deadline_id
             )
 
 
 @receiver(post_save, sender=Vote)
 def create_room_for_vote(sender, instance, created, **kwargs):
     if created:
-        room, _ = Room.objects.get_or_create(
+        room = Room.objects.create(
             title=instance.title,
-            defaults={
-                'description': f"Канал для обсуждения голосования '{instance.title}'",
-                'has_voting': True
-            }
+            description=f"Канал для обсуждения голосования '{instance.title}'",
+            has_voting=True,
+            tsj_id=instance.tjs_id
         )
         instance.room = room
         instance.save()

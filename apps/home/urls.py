@@ -6,6 +6,7 @@ from .views import (
     FlatTenantViewSet,
     FlatViewSet,
 
+    ListDeadLineApiView,
     VoteViewSet,
     FeedHomeView,
     RequestVoteViewSet, ApartmentHistoryViewSet,
@@ -13,9 +14,6 @@ from .views import (
 
 router = DefaultRouter()
 router.register("house", HouseViewSet)
-# router.register("flat_owners", FlatOwnerViewSet)
-# router.register("flat_tenants", FlatTenantViewSet)
-# router.register("flats", FlatViewSet)
 router.register(r"votes", VoteViewSet)
 router.register(r"request_votes", RequestVoteViewSet)
 router.register(r'apartment_history', ApartmentHistoryViewSet, basename="flat_history")
@@ -23,4 +21,5 @@ router.register(r'apartment_history', ApartmentHistoryViewSet, basename="flat_hi
 urlpatterns = [
     path("", include(router.urls)),
     path("feed/", FeedHomeView.as_view()),
+    path("deadlines/", ListDeadLineApiView.as_view()),
 ]

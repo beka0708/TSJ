@@ -157,7 +157,11 @@ class Vote(models.Model):
     title = models.CharField(max_length=100, verbose_name="Заголовок")
     description = CKEditor5Field(verbose_name="Описание")
     created_date = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
-    deadline = models.DateTimeField(verbose_name="Конец голосование")
+    deadline = models.ForeignKey("DeadLine",
+                                 verbose_name="Конец голосование",
+                                 on_delete=models.SET_NULL,
+                                 null=True,
+                                 blank=True)
     yes_count = models.IntegerField(default=0, verbose_name='Количество ответов "за')
     no_count = models.IntegerField(default=0, verbose_name='Количество ответов "нет')
     room = models.OneToOneField("chat.Room", on_delete=models.CASCADE, null=True, blank=True,
@@ -217,9 +221,6 @@ class RequestVoteNews(models.Model):
     created_date = models.DateTimeField(
         auto_now_add=True, null=True, verbose_name="Дата создания"
     )
-    deadline_date = models.DateTimeField(
-        blank=True, verbose_name="Срок голосования", help_text="для голосование"
-    )
     status = models.CharField(
         max_length=50,
         choices=[
@@ -230,6 +231,12 @@ class RequestVoteNews(models.Model):
         default="pending",
         verbose_name="Статус"
     )
+    deadline = models.ForeignKey("DeadLine",
+                                 verbose_name="Срок голосования",
+                                 on_delete=models.SET_NULL,
+                                 null=True,
+                                 blank=True
+                                 )
 
     class Meta:
         verbose_name = "Запросы на голосование"
@@ -245,3 +252,12 @@ class HouseDeveloper(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class DeadLine(models.Model):
+    title = models.CharField(max_length=50)
+    day = models.PositiveIntegerField(default=0)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title

@@ -2,6 +2,12 @@ from rest_framework import serializers
 from .models import *
 
 
+class DeadLineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeadLine
+        fields = '__all__'
+
+
 class PhotoSerializer(serializers.ModelSerializer):
     class Meta:
         model = HousePhoto
@@ -77,7 +83,7 @@ class RequestVoteSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = RequestVoteNews
-        fields = ('title', 'description', 'deadline_date', 'tsj_id')
+        fields = ('title', 'description', 'deadline', 'tsj_id')
 
     def create(self, validated_data):
         user_id = self.context['user_id']

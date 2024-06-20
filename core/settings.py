@@ -466,6 +466,27 @@ UNFOLD = {
                         "badge": "0",
                         "permission": lambda request: request.user.is_superuser,
                     },
+                    {
+                        "title": _("Сроки"),
+                        "icon": "schedule",  # Иконка из набора: https://fonts.google.com/icons
+                        "link": reverse_lazy("admin:home_deadline_changelist"),
+                        # "badge": "0",
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    {
+                        "title": _("Голосование"),
+                        "icon": "how_to_vote",  # Иконка из набора: https://fonts.google.com/icons
+                        "link": reverse_lazy("admin:home_vote_changelist"),
+                        # "badge": "0",
+                        "permission": lambda request: request.user.is_superuser,
+                    },
+                    {
+                        "title": _("Запрос на голосование"),
+                        "icon": "how_to_vote",  # Иконка из набора: https://fonts.google.com/icons
+                        "link": reverse_lazy("admin:home_requestvotenews_changelist"),
+                        # "badge": "0",
+                        "permission": lambda request: request.user.is_superuser,
+                    },
                 ],
             },
         ],

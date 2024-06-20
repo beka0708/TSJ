@@ -16,10 +16,16 @@ from .models import (
     VoteView,
     DomKomRole,
     HouseDeveloper,
-    HousePhoto
+    HousePhoto,
+    DeadLine
 )
 
 User = get_user_model()
+
+
+@admin.register(DeadLine)
+class TSJAdmin(ModelAdmin):
+    pass
 
 
 class FlatOwnerInline(admin.TabularInline):
