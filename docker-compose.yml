@@ -11,7 +11,7 @@ services:
       bash -c "python manage.py runserver 0.0.0.0:8000"
     container_name: tsj-app
     ports:
-      - '8000:8000'
+      - '8001:8000'
     restart: always
     env_file:
       - .env

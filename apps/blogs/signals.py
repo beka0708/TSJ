@@ -11,6 +11,7 @@ def send_notification_on_approve_news(sender, instance, created, **kwargs):
     if not created:
         if instance.is_approve == 'approved':
             user = instance.from_user
+            profile_user = user.profile
             message = f'Ваше обьявление было оплубликовано.'
             # Создание записи уведомления в базе данных
             Notification.objects.create(user=user, message=message)

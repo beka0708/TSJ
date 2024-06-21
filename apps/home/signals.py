@@ -15,6 +15,7 @@ def create_vote(sender, instance, created, **kwargs):
 
         if instance.status == "approved":
             user = instance.user
+            user_profile = user.profile
             message = f'Ваш чат было оплубликовано.'
             # Создание записи уведомления в базе данных
             Notification.objects.create(user=user, message=message)
@@ -33,7 +34,7 @@ def create_vote(sender, instance, created, **kwargs):
                 }
             )
             Vote.objects.create(
-                tjs_id=instance.tsj_id,
+                tjs_id=user_profile.current_tsj_id,
                 title=instance.title,
                 description=instance.description,
                 deadline_id=instance.deadline_id
