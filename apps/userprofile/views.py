@@ -23,18 +23,18 @@ from apps.home.models import TSJ
 User = get_user_model()
 
 
-class ProfileViewSet(WithoutDeleteViewSet):
-    queryset = Profile.objects.all()
-    serializer_class = ProfileSerializer
-    lookup_field = 'id'
-    permission_classes = [IsAuthenticated]
-
-    @action(detail=True, methods=['post'])
-    def switch(self, request, pk=None):
-        tsj = self.get_object()
-        request.user.profile.current_tsj = tsj
-        request.user.profile.save()
-        return Response({'status': 'current tsj switched'}, status=status.HTTP_200_OK)
+# class ProfileViewSet(WithoutDeleteViewSet):
+#     queryset = Profile.objects.all()
+#     serializer_class = ProfileSerializer
+#     lookup_field = 'id'
+#     permission_classes = [IsAuthenticated]
+#
+#     @action(detail=True, methods=['post'])
+#     def switch(self, request, pk=None):
+#         tsj = self.get_object()
+#         request.user.profile.current_tsj = tsj
+#         request.user.profile.save()
+#         return Response({'status': 'current tsj switched'}, status=status.HTTP_200_OK)
 
 
 class SwitchCurrentApiView(APIView):
@@ -148,3 +148,13 @@ class RequestViewSet(WithoutDeleteViewSet):
     queryset = Request.objects.all()
     serializer_class = RequestSerializer
     permission_classes = [IsManagerOrReadOnly]
+
+
+class DeleteAccountView(APIView):
+    """Удаление аккаунта (делает просто не активным)"""
+
+    def post(self, request):
+        user = request.user
+        user.is_status = "ARCHIVED"
+        user.save()
+        return Response({"message": "Ваш аккаунт был архивирован"}, status=status.HTTP_200_OK)

@@ -19,10 +19,12 @@ ROLE_CHOICES = [
 APPROVED = "APPROVED"
 NOT_APPROVED = "NOT_APPROVED"
 PENDING = "PENDING"
+ARCHIVED = "ARCHIVED"
 APPROVAL_CHOICES = [
     (APPROVED, "Одобрен"),
     (NOT_APPROVED, "Не одобрен"),
     (PENDING, "В ожидании"),
+    (ARCHIVED, 'Архивирован')
 ]
 
 
@@ -82,8 +84,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
             self.is_active = True
         elif self.is_status == NOT_APPROVED:
             self.is_active = False
-        elif self.is_superuser:
-            self.is_active = True
+        elif self.is_status == ARCHIVED:
+            self.is_active = False
         else:
             self.is_active = False
 
