@@ -54,8 +54,9 @@ class UserSerializer(serializers.ModelSerializer):
 
         # Извлечение адреса и других данных из validated_data
         address = validated_data.get("address")
-        house_number = address.split(',')[2]
-        flat_number = address.split(',')[3]
+        address_parts = address.split(',')
+        house_number = address_parts[2].strip()
+        flat_number = address_parts[3].strip()
 
         # Получение tsj из validated_data
         tsj_id = validated_data.pop("tsj")
@@ -65,16 +66,20 @@ class UserSerializer(serializers.ModelSerializer):
 
         # Создание квартиры
         house = House.objects.filter(name_block=house_number).first()
-        tsj = TSJ.objects.filter(id=tsj_id)
+        tsj = TSJ.objects.filter(id=tsj_id).first()
         if not tsj:
             raise serializers.ValidationError("TSJ with given id does not exist.")
         if not house:
             raise serializers.ValidationError("House with given number does not exist.")
 
-        flat = Flat.objects.create(house_id=house.id, number=flat_number)
+        # Проверка на дублирование квартиры
+        if Flat.objects.filter(house=house, number=flat_number).exists():
+            raise serializers.ValidationError("Flat with given number already exists in this house.")
+
+        flat = Flat.objects.create(house=house, number=flat_number)
 
         # Создание владельца квартиры и привязка к пользователю и квартире
-        FlatOwner.objects.create(user_id=user.id, flat_id=flat.id, tsj_id=tsj_id)
+        FlatOwner.objects.create(user=user, flat=flat, tsj=tsj)
 
         return user
 

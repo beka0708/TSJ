@@ -119,7 +119,7 @@ class Flat(models.Model):
     class Meta:
         verbose_name = "Квартиру"
         verbose_name_plural = "Квартиры"
-        unique_together = (("house", "number"),)
+
 
     def __str__(self):
         return (
