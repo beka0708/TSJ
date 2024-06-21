@@ -1,10 +1,11 @@
 from rest_framework.response import Response
 from .models import News, NewsView
-from .serializers import NewsSerializer
+from .serializers import NewsSerializer, CurrentNewsSerializers
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from apps.mixins.mixins import CreateGetListViewSet
 from rest_framework import status
+from rest_framework.decorators import action
 
 
 class NewsViewSet(CreateGetListViewSet):
@@ -29,6 +30,13 @@ class NewsViewSet(CreateGetListViewSet):
 
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def get_my_news(self, request):
+        user = request.user
+        news = News.objects.filter(from_user_id=user.id)
+        serializer = CurrentNewsSerializers(news, many=True, read_only=True)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
 # class NewsRequestsApiView()

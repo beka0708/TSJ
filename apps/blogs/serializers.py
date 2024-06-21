@@ -3,6 +3,12 @@ from django_ckeditor_5.fields import CKEditor5Field
 from .models import News
 
 
+class CurrentNewsSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = News
+        fields = ('id', 'type', 'title', 'description', 'link', 'is_approve')
+
+
 class NewsSerializer(serializers.ModelSerializer):
     views_count = serializers.SerializerMethodField()
     description = CKEditor5Field()
