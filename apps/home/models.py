@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
 from django_ckeditor_5.fields import CKEditor5Field
+from datetime import timedelta
 
 User = get_user_model()
 
@@ -120,7 +121,6 @@ class Flat(models.Model):
         verbose_name = "Квартиру"
         verbose_name_plural = "Квартиры"
 
-
     def __str__(self):
         return (
             f"Дом - {self.house.name_block}, Квартира {self.number}"
@@ -167,6 +167,12 @@ class Vote(models.Model):
     no_count = models.IntegerField(default=0, verbose_name='Количество ответов "нет')
     room = models.OneToOneField("chat.Room", on_delete=models.CASCADE, null=True, blank=True,
                                 verbose_name="Канал обсуждения")
+    date_finish = models.DateField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.deadline:
+            self.date_finish = self.deadline.date_created.date() + timedelta(days=self.deadline.day)
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = "Голосование"

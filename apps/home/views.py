@@ -263,7 +263,7 @@ class FeedHomeView(APIView):
             }
             if new_enti['type'] == 'vote':
                 new_enti['vote_result'] = {'y': enti.yes_count, 'n': enti.no_count}
-                new_enti['deadline'] = enti.deadline
+                new_enti['deadline'] = enti.date_finish
             else:
                 new_enti['vote_result'] = None
                 new_enti['deadline'] = None
