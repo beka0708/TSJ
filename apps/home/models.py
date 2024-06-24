@@ -9,7 +9,7 @@ User = get_user_model()
 
 class TSJ(models.Model):
     name = models.CharField(max_length=100, verbose_name="Название ТСЖ")
-    house = models.ManyToManyField("House", verbose_name="Дома для ТСЖ")
+    house = models.ManyToManyField("House", related_name="house_tsj", verbose_name="Дома для ТСЖ")
 
     class Meta:
         verbose_name = "ТСЖ"

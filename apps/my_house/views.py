@@ -25,8 +25,11 @@ class GetMyHouseApiView(APIView):
     def get(self, request):
         user = request.user
         my_flat_list = user.flatowner_set.values_list('id')
-        my_house = House.objects.filter(flat__id__in=my_flat_list)
-        serializer = self.serializer_class(my_house, many=True, read_only=True)
+        my_house = House.objects.filter(
+            flat__id__in=my_flat_list,
+            house_tsj=user.profile.current_tsj
+        ).first()
+        serializer = self.serializer_class(my_house, read_only=True)
         return Response(serializer.data)
 
 
