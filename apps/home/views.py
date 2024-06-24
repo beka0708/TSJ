@@ -1,4 +1,5 @@
 from django.utils import timezone
+from datetime import datetime, time,date
 from rest_framework import status
 from rest_framework import viewsets, generics
 from rest_framework.permissions import AllowAny
@@ -111,7 +112,7 @@ class VoteViewSet(
 
         instance = self.get_object()
 
-        if instance.deadline <= timezone.now():
+        if instance.date_finish <= date.today():
             return Response({"error": "Голосование уже завершено."}, status=status.HTTP_400_BAD_REQUEST)
 
         if instance.votes.filter(user=request.user).exists():

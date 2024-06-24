@@ -39,7 +39,7 @@ User = get_user_model()
 
 class SwitchCurrentApiView(APIView):
 
-    def get(self, request, pk):
+    def post(self, request, pk):
         tsj = get_object_or_404(TSJ, pk=pk)
         profile = request.user.profile
         profile.current_tsj = tsj
